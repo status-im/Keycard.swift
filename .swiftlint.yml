@@ -1,0 +1,13 @@
+included:
+  - Sources
+  - Tests
+excluded:
+  - Tests/BeaconChainTests/XCTestManifests.swift
+  - Tests/LinuxMain.swift
+file_name:
+  excluded:
+    - Package.swift
+identifier_name:
+  excluded:
+    - id
+    - to
