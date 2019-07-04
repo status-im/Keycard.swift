@@ -18,4 +18,38 @@ struct APDUResponse {
         self.sw2 = rawData[rawData.count - 1]
         self.data = rawData.count > 2 ? Array(rawData[0...(rawData.count - 3)]) : []
     }
+    
+    func checkOK() throws -> APDUResponse {
+        try checkSW(StatusWord.ok)
+    }
+    
+    func checkAuthOK() throws -> APDUResponse {
+        if (self.sw & StatusWord.wrongPINMask.rawValue) == StatusWord.wrongPINMask.rawValue {
+            throw CardError.wrongPIN(retryCounter: Int(self.sw2 & 0x0F))
+        } else {
+            return try checkOK()
+        }
+    }
+    
+    func checkSW(_ codes: StatusWord...) throws -> APDUResponse {
+        try checkSW(codes: codes.map({$0.rawValue}))
+    }
+    
+    func checkSW(_ codes: UInt16...) throws -> APDUResponse {
+        try checkSW(codes: codes)
+    }
+    
+    func checkSW(codes: [UInt16]) throws -> APDUResponse {
+        for code in codes {
+            if (self.sw == code) {
+                return self;
+            }
+        }
+        
+        if let aSW = StatusWord(rawValue: self.sw) {
+            throw aSW
+        } else {
+            throw StatusWord.unknownError
+        }
+    }
 }
