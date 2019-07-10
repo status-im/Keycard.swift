@@ -5,8 +5,6 @@ protocol CardChannel {
 
 extension CardChannel {
     var pairingPasswordPBKDF2IterationCount: Int {
-        get {
-            return 50000;
-        }
+        return 50000;
     }
 }

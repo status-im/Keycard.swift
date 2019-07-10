@@ -91,15 +91,13 @@ enum Identifier: String {
     case ndefInstanceAID = "D2760000850101"
     case keycardCashAID = "A000000804000103"
     case keycardCashInstanceAID = "A00000080400010301"
-    
+
+    var val: [UInt8] {
+        return rawValue.hexToBytes
+    }
+
     static func getKeycardInstanceAID(instanceId: UInt8 = 1) -> [UInt8] {
         precondition(instanceId >= 1, "The instance index must be between 1 and 255")
         return keycardAID.val + [instanceId]
-    }
-    
-    var val: [UInt8] {
-        get {
-            self.rawValue.hexToBytes
-        }
     }
 }

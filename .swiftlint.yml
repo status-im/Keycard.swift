@@ -9,5 +9,5 @@ file_name:
     - Package.swift
 identifier_name:
   excluded:
-    - id
-    - to
+    - p1
+    - p2
