@@ -1,5 +1,5 @@
 enum AppInfoTag: UInt8 {
-    case template = 0x04
+    case template = 0xA4
     case pubKey = 0x80
     case uid = 0x8f
     case keyUID = 0x8e
