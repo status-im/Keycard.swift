@@ -27,7 +27,7 @@ class TinyBERTLV {
         try checkTag(expected: tag, actual: readTag())
         let len = readLength()
         pos += len
-        return Array(buf[Int((pos - len))...pos])
+        return Array(buf[Int((pos - len))..<pos])
     }
 
     func readBoolean() throws -> Bool {

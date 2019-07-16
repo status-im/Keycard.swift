@@ -16,7 +16,7 @@ struct APDUResponse {
         precondition(rawData.count >= 2, "rawData must contain at least the Status Word (2 bytes)")
         self.sw1 = rawData[rawData.count - 2]
         self.sw2 = rawData[rawData.count - 1]
-        self.data = rawData.count > 2 ? Array(rawData[0...(rawData.count - 3)]) : []
+        self.data = rawData.count > 2 ? Array(rawData[0..<(rawData.count - 3)]) : []
     }
 
     func checkOK() throws -> APDUResponse {

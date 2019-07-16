@@ -15,6 +15,6 @@ struct Pairing {
 
     init(pairingData: [UInt8]) {
         self.pairingIndex = pairingData[0]
-        self.pairingKey = Array(pairingData[1...(pairingData.count - 1)])
+        self.pairingKey = Array(pairingData[1...])
     }
 }

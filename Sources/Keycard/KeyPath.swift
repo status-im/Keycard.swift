@@ -53,7 +53,7 @@
             self.source = DeriveKeyP1.fromCurrent
         default:
             self.source = DeriveKeyP1.fromCurrent
-            pathComponents = components[0...components.count]
+            pathComponents = components[0...]
         }
         
         if pathComponents.count > 10 {
