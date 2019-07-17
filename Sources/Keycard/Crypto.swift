@@ -5,6 +5,10 @@ class Crypto {
         
     }
     
+    func pbkdf2(password: String, salt: [UInt8], iterations: Int, outLen: Int) -> [UInt8] {
+        [] //TODO: implement
+    }
+    
     func hmacSHA512(data: [UInt8], key: [UInt8]) -> [UInt8] {
         [] //TODO: implement
     }

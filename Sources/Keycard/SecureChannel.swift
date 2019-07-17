@@ -21,6 +21,22 @@ class SecureChannel {
         iv = []
     }
     
+    func autoOpenSecureChannel(channel: CardChannel) throws {
+        //TODO: implement
+    }
+ 
+    func autoPair(channel: CardChannel, secret: [UInt8]) throws {
+        //TODO: implement
+    }
+    
+    func autoUnpair(channel: CardChannel) throws {
+        //TODO: implement
+    }
+    
+    func unpairOthers(channel: CardChannel) throws {
+        //TODO: implement
+    }
+    
     func openSecureChannel(channel: CardChannel, index: UInt8, data: [UInt8]) throws -> APDUResponse {
         open = false
         let cmd = APDUCommand(cla: CLA.proprietary.rawValue, ins: SecureChannelINS.openSecureChannel.rawValue, p1: index, p2: 0, data: data)
