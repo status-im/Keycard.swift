@@ -9,7 +9,7 @@ class KeycardCommandSet {
     }
 
     func select(instanceIdx: UInt8 = 1) throws -> APDUResponse {
-        let selectApplet: APDUCommand = APDUCommand(cla: 0x00, ins: 0xA4, p1: 0x04, p2: 0x00, data: Identifier.getKeycardInstanceAID(instanceId: instanceIdx))
+        let selectApplet: APDUCommand = APDUCommand(cla: CLA.iso7816.rawValue, ins: ISO7816INS.select.rawValue, p1: 0x04, p2: 0x00, data: Identifier.getKeycardInstanceAID(instanceId: instanceIdx))
         let resp: APDUResponse = try cardChannel.send(selectApplet)
 
         if resp.sw == StatusWord.ok.rawValue {

@@ -20,4 +20,8 @@ class Crypto {
     func secp256k1PublicFromPrivate(_ privKey: [UInt8]) -> [UInt8] {
         [] //TODO: implement
     }
+    
+    func random(count: Int) -> [UInt8] {
+        [] //TODO: implement
+    }
 }

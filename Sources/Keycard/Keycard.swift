@@ -1,3 +1,12 @@
+enum CLA: UInt8 {
+    case iso7816 = 0x00
+    case proprietary = 0x80
+}
+
+enum ISO7816INS: UInt8 {
+    case select = 0xa4
+}
+
 enum KeycardINS: UInt8 {
     case initialize = 0xfe
     case getStatus = 0xf2
