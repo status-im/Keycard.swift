@@ -72,4 +72,8 @@ class SecureChannel {
         //TODO: implement
         return rsp
     }
+    
+    func oneShotEncrypt(data: [UInt8]) -> [UInt8] {
+        []
+    }
 }
