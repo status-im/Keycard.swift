@@ -23,3 +23,13 @@ extension Array {
         }
     }
 }
+
+class Util {
+    static let shared = Util()
+    
+    private init() {}
+    
+    func dropZeroPrefix(uint8: [UInt8]) -> [UInt8] {
+        uint8[0] == 0x00 ? Array(uint8[1...]) : uint8
+    }
+}

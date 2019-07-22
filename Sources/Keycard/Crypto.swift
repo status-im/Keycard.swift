@@ -28,6 +28,10 @@ class Crypto {
         [] //TODO: implement
     }
     
+    func secp256k1RecoverPublic(r: [UInt8], s: [UInt8], recId: UInt8, hash: [UInt8]) -> [UInt8] {
+        [] //TODO: implement
+    }
+    
     func random(count: Int) -> [UInt8] {
         [] //TODO: implement
     }

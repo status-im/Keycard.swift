@@ -16,8 +16,8 @@ struct BIP32KeyPair {
     init(privateKey: [UInt8]?, chainCode: [UInt8]?, publicKey: [UInt8]?) {
         precondition(privateKey != nil || (chainCode == nil && publicKey != nil))
         
-        if (privateKey != nil && privateKey![0] == 0x00) {
-            self.privateKey = Array(privateKey![1...])
+        if (privateKey != nil) {
+            self.privateKey = Util.shared.dropZeroPrefix(uint8: privateKey!)
         } else {
             self.privateKey = privateKey
         }
