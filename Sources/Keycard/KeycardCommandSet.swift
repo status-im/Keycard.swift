@@ -10,7 +10,7 @@ class KeycardCommandSet {
     }
     
     func pairingPasswordToSecret(password: String) -> [UInt8] {
-        Crypto.shared.pbkdf2(password: password, salt: Array("Keycard Pairing Password Salt".utf8), iterations: cardChannel.pairingPasswordPBKDF2IterationCount, outLen: SecureChannel.secretLength)
+        Crypto.shared.pbkdf2(password: password, salt: Array("Keycard Pairing Password Salt".utf8), iterations: cardChannel.pairingPasswordPBKDF2IterationCount, hmac: PBKDF2HMac.sha256)
     }
 
     func select(instanceIdx: UInt8 = 1) throws -> APDUResponse {

@@ -1,11 +1,14 @@
+enum PBKDF2HMac {
+    case sha256
+    case sha512
+}
+
 class Crypto {
     static let shared = Crypto()
     
-    private init() {
-        
-    }
+    private init() {}
     
-    func pbkdf2(password: String, salt: [UInt8], iterations: Int, outLen: Int) -> [UInt8] {
+    func pbkdf2(password: String, salt: [UInt8], iterations: Int, hmac: PBKDF2HMac) -> [UInt8] {
         [] //TODO: implement
     }
     
