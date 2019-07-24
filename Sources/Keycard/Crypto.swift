@@ -15,8 +15,24 @@ class Crypto {
     func hmacSHA512(data: [UInt8], key: [UInt8]) -> [UInt8] {
         [] //TODO: implement
     }
+  
+    func sha256(_ data: [UInt8]) -> [UInt8] {
+        [] //TODO: implement
+    }
+    
+    func sha512(_ data: [UInt8]) -> [UInt8] {
+        [] //TODO: implement
+    }
     
     func kekkac256(_ data: [UInt8]) -> [UInt8] {
+        [] //TODO: implement
+    }
+
+    func secp256k1GeneratePair() -> ([UInt8], [UInt8]) {
+        ([], []) //TODO: implement
+    }
+    
+    func secp256k1ECDH(privKey: [UInt8], pubKey: [UInt8]) -> [UInt8] {
         [] //TODO: implement
     }
     

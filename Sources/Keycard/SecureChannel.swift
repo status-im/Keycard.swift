@@ -1,15 +1,21 @@
 class SecureChannel {
     static let secretLength = 32
     static let blockLength = 16
+    static let pairingMaxClientCount = 5
 
     var open: Bool
     var publicKey: [UInt8]?
     var pairing: Pairing?
+    var secret: [UInt8]?
     
     private var iv: [UInt8]
+    private var sessionEncKey: [UInt8]
+    private var sessionMacKey: [UInt8]
     
     func generateSecret(pubKey: [UInt8]) {
-        //TODO: implement
+        let (clientPubKey, privKey) = Crypto.shared.secp256k1GeneratePair()
+        self.publicKey = clientPubKey
+        self.secret = Crypto.shared.secp256k1ECDH(privKey: privKey, pubKey: pubKey)
     }
 
     func reset() {
@@ -19,22 +25,70 @@ class SecureChannel {
     init() {
         open = false
         iv = []
+        sessionEncKey = []
+        sessionMacKey = []
     }
     
     func autoOpenSecureChannel(channel: CardChannel) throws {
-        //TODO: implement
+        if (pairing == nil) {
+            throw CardError.notPaired
+        }
+        
+        var resp = try self.openSecureChannel(channel: channel, index: pairing!.pairingIndex, data: self.publicKey!).checkOK()
+        processOpenSecureChannelResponse(resp)
+        
+        resp = try mutuallyAuthenticate(channel: channel).checkOK()
+        
+        if !verifyMutuallyAuthenticateResponse(resp) {
+            throw CardError.invalidAuthData
+        }
+    }
+    
+    func processOpenSecureChannelResponse(_ response: APDUResponse) {
+        let keyData = Array(response.data[0..<SecureChannel.secretLength])
+        iv = Array(response.data[SecureChannel.secretLength...])
+        
+        let fullKey = Crypto.shared.sha512(self.secret! + pairing!.pairingKey + keyData)
+        self.sessionEncKey = Array(fullKey[0..<SecureChannel.secretLength])
+        self.sessionMacKey = Array(fullKey[SecureChannel.secretLength...])
+        self.open = true
+    }
+    
+    func verifyMutuallyAuthenticateResponse(_ response: APDUResponse) -> Bool {
+        response.data.count == SecureChannel.secretLength;
     }
  
-    func autoPair(channel: CardChannel, secret: [UInt8]) throws {
+    func autoPair(channel: CardChannel, sharedSecret: [UInt8]) throws {
         //TODO: implement
+        let challenge = Crypto.shared.random(count: SecureChannel.secretLength)
+        var resp = try self.pair(channel: channel, p1: PairP1.firstStep.rawValue, data: challenge).checkOK()
+        
+        let cardCryptogram = Array(resp.data[0..<SecureChannel.secretLength])
+        let cardChallenge = Array(resp.data[SecureChannel.secretLength...])
+        let checkCryptogram = Crypto.shared.sha256(sharedSecret + challenge)
+        
+        if checkCryptogram != cardCryptogram {
+            throw CardError.invalidAuthData
+        }
+        
+        let clientCryptogram = Crypto.shared.sha256(sharedSecret + cardChallenge)
+        
+        resp = try self.pair(channel: channel, p1: PairP1.lastStep.rawValue, data: clientCryptogram).checkOK()
+        
+        let pairingKey = Crypto.shared.sha256(sharedSecret + Array(resp.data[1...]))
+        self.pairing = Pairing(pairingKey: pairingKey, pairingIndex: resp.data[0])
     }
     
     func autoUnpair(channel: CardChannel) throws {
-        //TODO: implement
+        _ = try unpair(channel: channel, p1: pairing!.pairingIndex).checkOK()
     }
     
     func unpairOthers(channel: CardChannel) throws {
-        //TODO: implement
+        for i in 0..<SecureChannel.pairingMaxClientCount {
+            if i != pairing!.pairingIndex {
+                _ = try self.unpair(channel: channel, p1: UInt8(i)).checkOK()
+            }
+        }
     }
     
     func openSecureChannel(channel: CardChannel, index: UInt8, data: [UInt8]) throws -> APDUResponse {

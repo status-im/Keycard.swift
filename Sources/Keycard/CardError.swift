@@ -4,4 +4,5 @@ enum CardError: Error {
     case invalidState
     case notPaired
     case pinBlocked
+    case invalidAuthData
 }

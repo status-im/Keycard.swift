@@ -38,7 +38,7 @@ class KeycardCommandSet {
     }
     
     func autoPair(secret: [UInt8]) throws {
-        try secureChannel.autoPair(channel: cardChannel, secret: secret)
+        try secureChannel.autoPair(channel: cardChannel, sharedSecret: secret)
     }
     
     func autoUnpair() throws {
