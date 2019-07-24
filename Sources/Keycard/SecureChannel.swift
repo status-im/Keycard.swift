@@ -59,7 +59,6 @@ class SecureChannel {
     }
  
     func autoPair(channel: CardChannel, sharedSecret: [UInt8]) throws {
-        //TODO: implement
         let challenge = Crypto.shared.random(count: SecureChannel.secretLength)
         var resp = try self.pair(channel: channel, p1: PairP1.firstStep.rawValue, data: challenge).checkOK()
         
