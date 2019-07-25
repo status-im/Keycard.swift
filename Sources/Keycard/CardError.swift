@@ -5,4 +5,5 @@ enum CardError: Error {
     case notPaired
     case pinBlocked
     case invalidAuthData
+    case invalidMac
 }

@@ -2,6 +2,7 @@ class SecureChannel {
     static let secretLength = 32
     static let blockLength = 16
     static let pairingMaxClientCount = 5
+    static let payloadMaxSize = 223
 
     var open: Bool
     var publicKey: [UInt8]?
@@ -116,17 +117,62 @@ class SecureChannel {
     }
     
     func protectedCommand(cla: UInt8, ins: UInt8, p1: UInt8, p2: UInt8, data: [UInt8]) -> APDUCommand {
-        //TODO: implement
-        APDUCommand(cla: cla, ins: ins, p1: p1, p2: p2, data: data)
+        let finalData: [UInt8];
+        
+        if open {
+            let encrypted = encryptAPDU(data);
+            let meta: [UInt8] = [cla, ins, p1, p2, UInt8(encrypted.count + SecureChannel.blockLength), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            updateIV(meta: meta, data: encrypted);
+            
+            finalData = iv + encrypted
+        } else {
+            finalData = data;
+        }
+        
+        return APDUCommand(cla: cla, ins: ins, p1: p1, p2: p2, data: finalData)
     }
     
     func transmit(channel: CardChannel, cmd: APDUCommand) throws -> APDUResponse {
         let rsp = try channel.send(cmd)
-        //TODO: implement
-        return rsp
+
+        if rsp.sw == 0x6982 {
+            open = false;
+        }
+        
+        if open {
+            let meta: [UInt8] = [UInt8(rsp.data.count), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            let mac = Array(rsp.data[0..<SecureChannel.blockLength])
+            let data = Array(rsp.data[SecureChannel.blockLength...])
+            let plainData = decryptAPDU(data)
+            
+            updateIV(meta: meta, data: data)
+            
+            if self.iv != mac {
+                throw CardError.invalidMac
+            }
+            
+            return APDUResponse(rawData: plainData)
+        } else {
+            return rsp;
+        }
     }
     
     func oneShotEncrypt(data: [UInt8]) -> [UInt8] {
-        []
+        self.iv = Crypto.shared.random(count: SecureChannel.blockLength)
+        let encrypted = Crypto.shared.aes256Enc(data: data, iv: iv, key: secret!)
+        return [UInt8(self.publicKey!.count)] + publicKey! + iv + encrypted
+    }
+    
+    private func encryptAPDU(_ data: [UInt8]) -> [UInt8] {
+        precondition(data.count <= SecureChannel.payloadMaxSize)
+        return Crypto.shared.aes256Enc(data: Crypto.shared.iso7816_4Pad(data: data), iv: self.iv, key: self.sessionEncKey)
+    }
+    
+    private func decryptAPDU(_ data: [UInt8]) -> [UInt8] {
+        Crypto.shared.iso7816_4Pad(data: Crypto.shared.aes256Dec(data: data, iv: self.iv, key: self.sessionEncKey))
+    }
+    
+    private func updateIV(meta: [UInt8], data: [UInt8]) {
+        self.iv = Crypto.shared.aes256CMac(data: meta + data, key: self.sessionMacKey)
     }
 }

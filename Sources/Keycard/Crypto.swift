@@ -8,6 +8,26 @@ class Crypto {
     
     private init() {}
     
+    func aes256Enc(data: [UInt8], iv: [UInt8], key: [UInt8]) -> [UInt8] {
+        [] //TODO: implement
+    }
+    
+    func aes256Dec(data: [UInt8], iv: [UInt8], key: [UInt8]) -> [UInt8] {
+        [] //TODO: implement
+    }
+    
+    func aes256CMac(data: [UInt8], key: [UInt8]) -> [UInt8] {
+        [] //TODO: implement
+    }
+    
+    func iso7816_4Pad(data: [UInt8]) -> [UInt8] {
+        [] //TODO: implement
+    }
+    
+    func iso7816_4Unpad(data: [UInt8]) -> [UInt8] {
+        [] //TODO: implement
+    }
+    
     func pbkdf2(password: String, salt: [UInt8], iterations: Int, hmac: PBKDF2HMac) -> [UInt8] {
         [] //TODO: implement
     }
