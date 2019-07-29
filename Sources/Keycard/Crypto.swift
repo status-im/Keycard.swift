@@ -1,3 +1,6 @@
+import secp256k1
+import CryptoSwift
+    
 enum PBKDF2HMac {
     case sha256
     case sha512
@@ -20,32 +23,63 @@ class Crypto {
         [] //TODO: implement
     }
     
-    func iso7816_4Pad(data: [UInt8]) -> [UInt8] {
-        [] //TODO: implement
+    func iso7816_4Pad(data: [UInt8], blockSize: Int) -> [UInt8] {
+        var padded = Array(data)
+        padded.append(0x80)
+        
+        // can be obviously optimized, but I really doubt it makes sense, and this is easier to read
+        while (padded.count % blockSize) != 0 {
+            padded.append(0x00)
+        }
+        
+        return padded
     }
     
     func iso7816_4Unpad(data: [UInt8]) -> [UInt8] {
-        [] //TODO: implement
+        if let idx = data.lastIndex(of: 0x80) {
+            return Array(data[..<idx])
+        } else {
+            return data
+        }
     }
     
     func pbkdf2(password: String, salt: [UInt8], iterations: Int, hmac: PBKDF2HMac) -> [UInt8] {
-        [] //TODO: implement
+        let keyLength: Int
+        let variant: HMAC.Variant
+        
+        switch hmac {
+        case .sha256:
+            keyLength = 32
+            variant = .sha256
+        case .sha512:
+            keyLength = 64
+            variant = .sha512
+        }
+        do {
+            return try PKCS5.PBKDF2(password: Array(password.utf8), salt: salt, iterations: iterations, keyLength: keyLength, variant: variant).calculate()
+        } catch {
+            return [] // cannot happen
+        }
     }
     
     func hmacSHA512(data: [UInt8], key: [UInt8]) -> [UInt8] {
-        [] //TODO: implement
+        do {
+            return try HMAC(key: key, variant: .sha512).authenticate(data)
+        } catch {
+            return [] // cannot happen
+        }
     }
   
     func sha256(_ data: [UInt8]) -> [UInt8] {
-        [] //TODO: implement
+        Digest.sha256(data)
     }
     
     func sha512(_ data: [UInt8]) -> [UInt8] {
-        [] //TODO: implement
+        Digest.sha512(data)
     }
     
-    func kekkac256(_ data: [UInt8]) -> [UInt8] {
-        [] //TODO: implement
+    func keccak256(_ data: [UInt8]) -> [UInt8] {
+        Digest.sha3(data, variant: .keccak256)
     }
 
     func secp256k1GeneratePair() -> ([UInt8], [UInt8]) {
@@ -57,7 +91,7 @@ class Crypto {
     }
     
     func secp256k1PublicToEthereumAddress(_ pubKey: [UInt8]) -> [UInt8] {
-        Array(kekkac256(Array(pubKey[1...]))[12...])
+        Array(keccak256(Array(pubKey[1...]))[12...])
     }
     
     func secp256k1PublicFromPrivate(_ privKey: [UInt8]) -> [UInt8] {
@@ -69,6 +103,6 @@ class Crypto {
     }
     
     func random(count: Int) -> [UInt8] {
-        [] //TODO: implement
+        AES.randomIV(count)
     }
 }

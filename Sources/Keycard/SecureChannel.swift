@@ -165,11 +165,11 @@ class SecureChannel {
     
     private func encryptAPDU(_ data: [UInt8]) -> [UInt8] {
         precondition(data.count <= SecureChannel.payloadMaxSize)
-        return Crypto.shared.aes256Enc(data: Crypto.shared.iso7816_4Pad(data: data), iv: self.iv, key: self.sessionEncKey)
+        return Crypto.shared.aes256Enc(data: Crypto.shared.iso7816_4Pad(data: data, blockSize: SecureChannel.blockLength), iv: self.iv, key: self.sessionEncKey)
     }
     
     private func decryptAPDU(_ data: [UInt8]) -> [UInt8] {
-        Crypto.shared.iso7816_4Pad(data: Crypto.shared.aes256Dec(data: data, iv: self.iv, key: self.sessionEncKey))
+        Crypto.shared.iso7816_4Unpad(data: Crypto.shared.aes256Dec(data: data, iv: self.iv, key: self.sessionEncKey))
     }
     
     private func updateIV(meta: [UInt8], data: [UInt8]) {

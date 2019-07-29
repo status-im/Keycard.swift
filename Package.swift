@@ -12,15 +12,16 @@ let package = Package(
             targets: ["Keycard"]),
     ],
     dependencies: [
-        // Dependencies declare other packages that this package depends on.
-        // .package(url: /* package url */, from: "1.0.0"),
+        .package(url: "https://github.com/Boilertalk/secp256k1.swift.git", from: "0.1.0"),
+        .package(url: "https://github.com/krzyzanowskim/CryptoSwift.git", .upToNextMinor(from: "1.0.0"))
+
     ],
     targets: [
         // Targets are the basic building blocks of a package. A target can define a module or a test suite.
         // Targets can depend on other targets in this package, and on products in packages which this package depends on.
         .target(
             name: "Keycard",
-            dependencies: []),
+            dependencies: ["secp256k1", "CryptoSwift"]),
         .testTarget(
             name: "KeycardTests",
             dependencies: ["Keycard"]),
