@@ -9,7 +9,15 @@ enum PBKDF2HMac {
 class Crypto {
     static let shared = Crypto()
     
-    private init() {}
+    let ctx: OpaquePointer
+    
+    private init() {
+        ctx = secp256k1_context_create(UInt32(SECP256K1_CONTEXT_SIGN | SECP256K1_CONTEXT_VERIFY))!
+    }
+    
+    deinit {
+        secp256k1_context_destroy(ctx)
+    }
     
     func aes256Enc(data: [UInt8], iv: [UInt8], key: [UInt8]) -> [UInt8] {
         try! AES(key: key, blockMode: CBC(iv: iv), padding: .noPadding).encrypt(data)
@@ -76,11 +84,27 @@ class Crypto {
     }
 
     func secp256k1GeneratePair() -> ([UInt8], [UInt8]) {
-        ([], []) //TODO: implement
+        var secretKey: [UInt8]
+        
+        repeat {
+            secretKey = random(count: 32)
+        } while secp256k1_ec_seckey_verify(ctx, &secretKey) != Int32(1)
+        
+        
+        return (secretKey, secp256k1PublicFromPrivate(secretKey))
     }
     
-    func secp256k1ECDH(privKey: [UInt8], pubKey: [UInt8]) -> [UInt8] {
-        [] //TODO: implement
+    func secp256k1ECDH(privKey: [UInt8], pubKey pubKeyBytes: [UInt8]) -> [UInt8] {
+        /*
+         unfortunately the secp256k1 wrapper includes a version which always performs SHA256 on the output. We will need to fork and import a newer version where a custom output function can be specified (we just need x from the result)
+        var pubKey = secp256k1_pubkey()
+        var ecdhOut = [UInt8](repeating: 0, count: 32)
+        _ = secp256k1_ec_pubkey_parse(ctx, &pubKey, pubKeyBytes, pubKeyBytes.count)
+        _ = secp256k1_ecdh(ctx, &ecdhOut, &pubKey, privKey)
+        
+        return ecdhOut
+         */
+        return []
     }
     
     func secp256k1PublicToEthereumAddress(_ pubKey: [UInt8]) -> [UInt8] {
@@ -88,11 +112,26 @@ class Crypto {
     }
     
     func secp256k1PublicFromPrivate(_ privKey: [UInt8]) -> [UInt8] {
-        [] //TODO: implement
+        var pubKey = secp256k1_pubkey()
+        _ = secp256k1_ec_pubkey_create(ctx, &pubKey, privKey)
+        return _secp256k1PubToBytes(&pubKey)
     }
     
     func secp256k1RecoverPublic(r: [UInt8], s: [UInt8], recId: UInt8, hash: [UInt8]) -> [UInt8] {
-        [] //TODO: implement
+        var sig = secp256k1_ecdsa_recoverable_signature()
+        _ = secp256k1_ecdsa_recoverable_signature_parse_compact(ctx, &sig, r + s, Int32(recId))
+        
+        var pubKey = secp256k1_pubkey()
+        _ = secp256k1_ecdsa_recover(ctx, &pubKey, &sig, hash)
+        return _secp256k1PubToBytes(&pubKey)
+    }
+    
+    private func _secp256k1PubToBytes(_ pubKey: inout secp256k1_pubkey) -> [UInt8] {
+        var pubKeyBytes = [UInt8](repeating: 0, count: 65)
+        var outputLen = 65
+        _ = secp256k1_ec_pubkey_serialize(ctx, &pubKeyBytes, &outputLen, &pubKey, UInt32(SECP256K1_EC_UNCOMPRESSED))
+        
+        return pubKeyBytes
     }
     
     func random(count: Int) -> [UInt8] {
