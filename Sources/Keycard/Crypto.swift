@@ -12,15 +12,15 @@ class Crypto {
     private init() {}
     
     func aes256Enc(data: [UInt8], iv: [UInt8], key: [UInt8]) -> [UInt8] {
-        [] //TODO: implement
+        try! AES(key: key, blockMode: CBC(iv: iv), padding: .noPadding).encrypt(data)
     }
     
     func aes256Dec(data: [UInt8], iv: [UInt8], key: [UInt8]) -> [UInt8] {
-        [] //TODO: implement
+        try! AES(key: key, blockMode: CBC(iv: iv), padding: .noPadding).decrypt(data)
     }
     
     func aes256CMac(data: [UInt8], key: [UInt8]) -> [UInt8] {
-        [] //TODO: implement
+        try! CMAC(key: key).authenticate(data)
     }
     
     func iso7816_4Pad(data: [UInt8], blockSize: Int) -> [UInt8] {
@@ -55,19 +55,12 @@ class Crypto {
             keyLength = 64
             variant = .sha512
         }
-        do {
-            return try PKCS5.PBKDF2(password: Array(password.utf8), salt: salt, iterations: iterations, keyLength: keyLength, variant: variant).calculate()
-        } catch {
-            return [] // cannot happen
-        }
+
+        return try! PKCS5.PBKDF2(password: Array(password.utf8), salt: salt, iterations: iterations, keyLength: keyLength, variant: variant).calculate()
     }
     
     func hmacSHA512(data: [UInt8], key: [UInt8]) -> [UInt8] {
-        do {
-            return try HMAC(key: key, variant: .sha512).authenticate(data)
-        } catch {
-            return [] // cannot happen
-        }
+        return try! HMAC(key: key, variant: .sha512).authenticate(data)
     }
   
     func sha256(_ data: [UInt8]) -> [UInt8] {
