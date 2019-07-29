@@ -20,7 +20,7 @@ class Crypto {
     }
     
     func aes256CMac(data: [UInt8], key: [UInt8]) -> [UInt8] {
-        try! CMAC(key: key).authenticate(data)
+        try! CBCMAC(key: key).authenticate(data)
     }
     
     func iso7816_4Pad(data: [UInt8], blockSize: Int) -> [UInt8] {
