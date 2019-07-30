@@ -12,11 +12,11 @@
       },
       {
         "package": "secp256k1",
-        "repositoryURL": "https://github.com/Boilertalk/secp256k1.swift.git",
+        "repositoryURL": "https://github.com/status-im/secp256k1.swift.git",
         "state": {
           "branch": null,
-          "revision": "823281fe9def21b384099b72a9a53ca988317b20",
-          "version": "0.1.4"
+          "revision": "8d9f5ae68a56fde915cafd797a8ff19ccb6b98f3",
+          "version": "0.1.5"
         }
       }
     ]

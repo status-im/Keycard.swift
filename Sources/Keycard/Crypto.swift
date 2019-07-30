@@ -95,16 +95,12 @@ class Crypto {
     }
     
     func secp256k1ECDH(privKey: [UInt8], pubKey pubKeyBytes: [UInt8]) -> [UInt8] {
-        /*
-         unfortunately the secp256k1 wrapper includes a version which always performs SHA256 on the output. We will need to fork and import a newer version where a custom output function can be specified (we just need x from the result)
         var pubKey = secp256k1_pubkey()
         var ecdhOut = [UInt8](repeating: 0, count: 32)
         _ = secp256k1_ec_pubkey_parse(ctx, &pubKey, pubKeyBytes, pubKeyBytes.count)
-        _ = secp256k1_ecdh(ctx, &ecdhOut, &pubKey, privKey)
+        _ = secp256k1_ecdh(ctx, &ecdhOut, &pubKey, privKey, { (output, x, _, _) -> Int32 in memcpy(output, x, 32); return 1 }, nil)
         
         return ecdhOut
-         */
-        return []
     }
     
     func secp256k1PublicToEthereumAddress(_ pubKey: [UInt8]) -> [UInt8] {
