@@ -1,6 +1,6 @@
 import Foundation
 
-struct Mnemonic {
+class Mnemonic {
     static let bip39IterationCount = 2048
     
     static func toBinarySeed(mnemonicPhrase: String, password: String = "") -> [UInt8] {
@@ -23,16 +23,14 @@ struct Mnemonic {
         var idx: [UInt16] = []
         
         for i in 0..<(rawData.count / 2) {
-            idx.append((UInt16(rawData[i * 2] << 8)) | UInt16(rawData[(i * 2) + 1]))
+            idx.append((UInt16(rawData[i * 2]) << 8) | UInt16(rawData[(i * 2) + 1]))
         }
         
         self.indexes = idx
     }
     
-    mutating func useBIP39EnglishWordlist() {
-        let path = Bundle.main.path(forResource: "english", ofType: "txt")!
-        let content = try! String(contentsOfFile: path, encoding: String.Encoding.utf8)
-        self.wordList = content.split(separator: "\n").map {(s) -> String in String(s) }
+    func useBIP39EnglishWordlist() {
+        self.wordList = MnemonicEnglish.words
     }
     
     func toMnemonicPhrase() -> String {
