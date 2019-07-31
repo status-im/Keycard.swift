@@ -1,6 +1,6 @@
 enum TLVTag: UInt8 {
-    case int = 0x01
-    case bool = 0x02
+    case bool = 0x01
+    case int = 0x02
 }
 
 enum TLVError: Error {
