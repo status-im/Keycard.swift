@@ -9,14 +9,14 @@ enum PBKDF2HMac {
 class Crypto {
     static let shared = Crypto()
     
-    let ctx: OpaquePointer
+    let secp256k1Ctx: OpaquePointer
     
     private init() {
-        ctx = secp256k1_context_create(UInt32(SECP256K1_CONTEXT_SIGN | SECP256K1_CONTEXT_VERIFY))!
+        secp256k1Ctx = secp256k1_context_create(UInt32(SECP256K1_CONTEXT_SIGN | SECP256K1_CONTEXT_VERIFY))!
     }
     
     deinit {
-        secp256k1_context_destroy(ctx)
+        secp256k1_context_destroy(secp256k1Ctx)
     }
     
     func aes256Enc(data: [UInt8], iv: [UInt8], key: [UInt8]) -> [UInt8] {
@@ -88,7 +88,7 @@ class Crypto {
         
         repeat {
             secretKey = random(count: 32)
-        } while secp256k1_ec_seckey_verify(ctx, &secretKey) != Int32(1)
+        } while secp256k1_ec_seckey_verify(secp256k1Ctx, &secretKey) != Int32(1)
         
         
         return (secretKey, secp256k1PublicFromPrivate(secretKey))
@@ -97,8 +97,8 @@ class Crypto {
     func secp256k1ECDH(privKey: [UInt8], pubKey pubKeyBytes: [UInt8]) -> [UInt8] {
         var pubKey = secp256k1_pubkey()
         var ecdhOut = [UInt8](repeating: 0, count: 32)
-        _ = secp256k1_ec_pubkey_parse(ctx, &pubKey, pubKeyBytes, pubKeyBytes.count)
-        _ = secp256k1_ecdh(ctx, &ecdhOut, &pubKey, privKey, { (output, x, _, _) -> Int32 in memcpy(output, x, 32); return 1 }, nil)
+        _ = secp256k1_ec_pubkey_parse(secp256k1Ctx, &pubKey, pubKeyBytes, pubKeyBytes.count)
+        _ = secp256k1_ecdh(secp256k1Ctx, &ecdhOut, &pubKey, privKey, { (output, x, _, _) -> Int32 in memcpy(output, x, 32); return 1 }, nil)
         
         return ecdhOut
     }
@@ -109,23 +109,34 @@ class Crypto {
     
     func secp256k1PublicFromPrivate(_ privKey: [UInt8]) -> [UInt8] {
         var pubKey = secp256k1_pubkey()
-        _ = secp256k1_ec_pubkey_create(ctx, &pubKey, privKey)
+        _ = secp256k1_ec_pubkey_create(secp256k1Ctx, &pubKey, privKey)
         return _secp256k1PubToBytes(&pubKey)
     }
     
     func secp256k1RecoverPublic(r: [UInt8], s: [UInt8], recId: UInt8, hash: [UInt8]) -> [UInt8] {
         var sig = secp256k1_ecdsa_recoverable_signature()
-        _ = secp256k1_ecdsa_recoverable_signature_parse_compact(ctx, &sig, r + s, Int32(recId))
+        _ = secp256k1_ecdsa_recoverable_signature_parse_compact(secp256k1Ctx, &sig, r + s, Int32(recId))
         
         var pubKey = secp256k1_pubkey()
-        _ = secp256k1_ecdsa_recover(ctx, &pubKey, &sig, hash)
+        _ = secp256k1_ecdsa_recover(secp256k1Ctx, &pubKey, &sig, hash)
         return _secp256k1PubToBytes(&pubKey)
+    }
+    
+    func secp256k1Sign(hash: [UInt8], privKey: [UInt8]) -> [UInt8] {
+        var sig = secp256k1_ecdsa_signature()
+
+        _ = secp256k1_ecdsa_sign(secp256k1Ctx, &sig, hash, privKey, nil, nil)
+        var derSig = [UInt8](repeating: 0, count: 72)
+        var derOutLen = 72
+
+        secp256k1_ecdsa_signature_serialize_der(secp256k1Ctx, &derSig, &derOutLen, &sig)
+        return Array(derSig[0..<derOutLen])
     }
     
     private func _secp256k1PubToBytes(_ pubKey: inout secp256k1_pubkey) -> [UInt8] {
         var pubKeyBytes = [UInt8](repeating: 0, count: 65)
         var outputLen = 65
-        _ = secp256k1_ec_pubkey_serialize(ctx, &pubKeyBytes, &outputLen, &pubKey, UInt32(SECP256K1_EC_UNCOMPRESSED))
+        _ = secp256k1_ec_pubkey_serialize(secp256k1Ctx, &pubKeyBytes, &outputLen, &pubKey, UInt32(SECP256K1_EC_UNCOMPRESSED))
         
         return pubKeyBytes
     }
