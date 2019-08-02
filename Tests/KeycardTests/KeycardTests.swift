@@ -74,11 +74,48 @@ final class KeycardTests: XCTestCase {
         XCTAssertEqual(recoverableSig.r.count, 32)
         XCTAssertEqual(recoverableSig.s.count, 32)
     }
+    
+    func testBIP32KeyPair() {
+        let bip32pair = BIP32KeyPair(fromSeed: Crypto.shared.sha256(Crypto.shared.random(count: 32)))
+        XCTAssertTrue(bip32pair.isExtended)
+        XCTAssertFalse(bip32pair.isPublicOnly)
+        XCTAssertEqual(bip32pair.publicKey.count, 65)
+        
+        let tlv = TinyBERTLV(bip32pair.toTLV())
+        XCTAssertNoThrow(try tlv.enterConstructed(tag: 0xa1))
+        XCTAssertEqual(try! tlv.readPrimitive(tag: 0x80).count, 65)
+        XCTAssertEqual(try! tlv.readPrimitive(tag: 0x81).count, 32)
+        XCTAssertEqual(try! tlv.readPrimitive(tag: 0x82).count, 32)
+        
+        let publicOnly = try! BIP32KeyPair(fromTLV: [0xa1, 0x43, 0x80, 0x41, 0x04, 0x7b, 0x83, 0xad, 0x6a, 0xfb, 0x12, 0x09, 0xf3, 0xc8, 0x2e, 0xbe, 0xb0, 0x8c, 0x0c, 0x5f, 0xa9, 0xbf, 0x67, 0x24, 0x54, 0x85, 0x06, 0xf2, 0xfb, 0x4f, 0x99, 0x1e, 0x22, 0x87, 0xa7, 0x70, 0x90, 0x17, 0x73, 0x16, 0xca, 0x82, 0xb0, 0xbd, 0xf7, 0x0c, 0xd9, 0xde, 0xe1, 0x45, 0xc3, 0x00, 0x2c, 0x0d, 0xa1, 0xd9, 0x26, 0x26, 0x44, 0x98, 0x75, 0x97, 0x2a, 0x27, 0x80, 0x7b, 0x73, 0xb4, 0x2e])
+        
+        XCTAssertFalse(publicOnly.isExtended)
+        XCTAssertTrue(publicOnly.isPublicOnly)
+        XCTAssertNil(publicOnly.privateKey)
+        XCTAssertNil(publicOnly.chainCode)
+        
+        let notExtended = try! BIP32KeyPair(fromTLV: [0xa1, 0x23, 0x81, 0x21, 0x00, 0x03, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f])
+        
+        XCTAssertFalse(notExtended.isExtended)
+        XCTAssertFalse(notExtended.isPublicOnly)
+        XCTAssertEqual(notExtended.privateKey!.count, 32)
+        XCTAssertNil(notExtended.chainCode)
+        XCTAssertEqual(notExtended.publicKey.count, 65)
+    }
+    
+    func testSecureChannel() {
+        let (priv, pub) = Crypto.shared.secp256k1GeneratePair()
+        let secureChannel = SecureChannel()
+        secureChannel.generateSecret(pubKey: pub)
+        XCTAssertEqual(secureChannel.secret!, Crypto.shared.secp256k1ECDH(privKey: priv, pubKey: secureChannel.publicKey!))
+    }
 
     static var allTests = [
         ("testApplicationInfo", testApplicationInfo),
         ("testKeyPath", testKeyPath),
         ("testMnemonic", testMnemonic),
-        ("testRecoverableSignature", testRecoverableSignature)
+        ("testRecoverableSignature", testRecoverableSignature),
+        ("testBIP32KeyPair", testBIP32KeyPair),
+        ("testSecureChannel", testSecureChannel)
     ]
 }
