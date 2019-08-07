@@ -18,6 +18,12 @@ struct APDUResponse {
         self.sw2 = rawData[rawData.count - 1]
         self.data = rawData.count > 2 ? Array(rawData[0..<(rawData.count - 3)]) : []
     }
+    
+    init(sw1: UInt8, sw2: UInt8, data: [UInt8]) {
+        self.sw1 = sw1
+        self.sw2 = sw2
+        self.data = data
+    }
 
     func checkOK() throws -> APDUResponse {
         try checkSW(StatusWord.ok)

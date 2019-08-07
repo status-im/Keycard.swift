@@ -6,4 +6,5 @@ enum CardError: Error {
     case pinBlocked
     case invalidAuthData
     case invalidMac
+    case communicationError
 }

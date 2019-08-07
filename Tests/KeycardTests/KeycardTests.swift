@@ -108,6 +108,30 @@ final class KeycardTests: XCTestCase {
         let secureChannel = SecureChannel()
         secureChannel.generateSecret(pubKey: pub)
         XCTAssertEqual(secureChannel.secret!, Crypto.shared.secp256k1ECDH(privKey: priv, pubKey: secureChannel.publicKey!))
+        
+        var clientChallenge: [UInt8]? = nil
+        var pairing: [UInt8] = []
+        let sharedSecret = Crypto.shared.random(count: 32)
+        
+        let testChannel = TestCardChannel()
+        testChannel.callback = { (cmd) in
+            if clientChallenge == nil {
+                XCTAssertEqual(cmd.ins, SecureChannelINS.pair.rawValue)
+                XCTAssertEqual(cmd.p1, PairP1.firstStep.rawValue)
+                let cryptogram = Crypto.shared.sha256(sharedSecret + cmd.data)
+                clientChallenge = Crypto.shared.random(count: 32)
+                return APDUResponse(sw1: 0x90, sw2: 0x00, data: cryptogram + clientChallenge!)
+            } else {
+                XCTAssertEqual(Crypto.shared.sha256(sharedSecret + clientChallenge!), cmd.data)
+                let salt = Crypto.shared.random(count: 32)
+                pairing = Crypto.shared.sha256(sharedSecret + salt)
+                return APDUResponse(sw1: 0x90, sw2: 0x00, data: [0x03] + salt)
+            }
+        }
+        
+        XCTAssertNoThrow(try secureChannel.autoPair(channel: testChannel, sharedSecret: sharedSecret))
+        XCTAssertEqual(secureChannel.pairing!.pairingIndex, 3)
+        XCTAssertEqual(secureChannel.pairing!.pairingKey, pairing)
     }
 
     static var allTests = [
