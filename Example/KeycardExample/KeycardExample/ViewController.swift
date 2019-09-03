@@ -111,6 +111,10 @@ class TableViewController: UITableViewController {
             })
         }
 
+        initializeAction("123456", "123456789000", "qwe123qwe")
+
+        return
+
         let inputAlert = UIAlertController(
             title: "Input",
             message: "Please enter required information",
@@ -171,7 +175,7 @@ class TableViewController: UITableViewController {
 //            os_log("end")
 
             os_log("start")
-            self.systemPBKDF(password: "qwe123qwe", salt: Array("Keycard Pairing Password Salt".utf8))
+//            self.systemPBKDF(password: "qwe123qwe", salt: Array("Keycard Pairing Password Salt".utf8))
             os_log("end")
         }
     }

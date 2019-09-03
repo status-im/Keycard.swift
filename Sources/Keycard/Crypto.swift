@@ -21,11 +21,11 @@ class Crypto {
     }
     
     func aes256Enc(data: [UInt8], iv: [UInt8], key: [UInt8]) -> [UInt8] {
-        try! AES(key: key, blockMode: CBC(iv: iv), padding: .noPadding).encrypt(data)
+        try! AES(key: key, blockMode: CBC(iv: iv), padding: .zeroPadding).encrypt(data)
     }
     
     func aes256Dec(data: [UInt8], iv: [UInt8], key: [UInt8]) -> [UInt8] {
-        try! AES(key: key, blockMode: CBC(iv: iv), padding: .noPadding).decrypt(data)
+        try! AES(key: key, blockMode: CBC(iv: iv), padding: .zeroPadding).decrypt(data)
     }
     
     func aes256CMac(data: [UInt8], key: [UInt8]) -> [UInt8] {

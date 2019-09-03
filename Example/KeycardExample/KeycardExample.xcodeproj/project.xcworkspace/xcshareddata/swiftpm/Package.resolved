@@ -12,10 +12,10 @@
       },
       {
         "package": "Keycard",
-        "repositoryURL": "https://github.com/gnosis/Keycard.swift",
+        "repositoryURL": "/Users/dmitry/projects/gnosis/Keycard.swift",
         "state": {
           "branch": "master",
-          "revision": "b126ff97e740c997e85e439b5ba24de9dc5f4bcb",
+          "revision": "ab0b44472f18eadc6ec88d04689a238c56c0ecbd",
           "version": null
         }
       },

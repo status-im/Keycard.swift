@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		0A059743231E881D00B43E94 /* Keycard in Frameworks */ = {isa = PBXBuildFile; productRef = 0A059742231E881D00B43E94 /* Keycard */; };
+		0A059746231E8A2300B43E94 /* Keycard in Frameworks */ = {isa = PBXBuildFile; productRef = 0A059745231E8A2300B43E94 /* Keycard */; };
 		0A2A8A6E231E7F4500CA966D /* KeycardExampleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A2A8A6D231E7F4500CA966D /* KeycardExampleTests.swift */; };
 		0A9CB9BE231E504A007AE9FF /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A9CB9BD231E504A007AE9FF /* AppDelegate.swift */; };
 		0A9CB9C0231E504A007AE9FF /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A9CB9BF231E504A007AE9FF /* SceneDelegate.swift */; };
@@ -54,7 +54,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				0A059743231E881D00B43E94 /* Keycard in Frameworks */,
+				0A059746231E8A2300B43E94 /* Keycard in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -138,7 +138,7 @@
 			);
 			name = KeycardExample;
 			packageProductDependencies = (
-				0A059742231E881D00B43E94 /* Keycard */,
+				0A059745231E8A2300B43E94 /* Keycard */,
 			);
 			productName = KeycardExample;
 			productReference = 0A9CB9BA231E504A007AE9FF /* KeycardExample.app */;
@@ -173,7 +173,7 @@
 			);
 			mainGroup = 0A9CB9B1231E504A007AE9FF;
 			packageReferences = (
-				0A059741231E881D00B43E94 /* XCRemoteSwiftPackageReference "Keycard" */,
+				0A059744231E8A2300B43E94 /* XCRemoteSwiftPackageReference "Keycard" */,
 			);
 			productRefGroup = 0A9CB9BB231E504A007AE9FF /* Products */;
 			projectDirPath = "";
@@ -479,9 +479,9 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		0A059741231E881D00B43E94 /* XCRemoteSwiftPackageReference "Keycard" */ = {
+		0A059744231E8A2300B43E94 /* XCRemoteSwiftPackageReference "Keycard" */ = {
 			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/gnosis/Keycard.swift";
+			repositoryURL = "file:///Users/dmitry/projects/gnosis/Keycard.swift";
 			requirement = {
 				branch = master;
 				kind = branch;
@@ -490,9 +490,9 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		0A059742231E881D00B43E94 /* Keycard */ = {
+		0A059745231E8A2300B43E94 /* Keycard */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 0A059741231E881D00B43E94 /* XCRemoteSwiftPackageReference "Keycard" */;
+			package = 0A059744231E8A2300B43E94 /* XCRemoteSwiftPackageReference "Keycard" */;
 			productName = Keycard;
 		};
 /* End XCSwiftPackageProductDependency section */
