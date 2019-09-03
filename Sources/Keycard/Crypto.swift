@@ -21,15 +21,16 @@ class Crypto {
     }
     
     func aes256Enc(data: [UInt8], iv: [UInt8], key: [UInt8]) -> [UInt8] {
-        try! AES(key: key, blockMode: CBC(iv: iv), padding: .zeroPadding).encrypt(data)
+        try! AES(key: key, blockMode: CBC(iv: iv), padding: .pkcs7).encrypt(data)
     }
     
     func aes256Dec(data: [UInt8], iv: [UInt8], key: [UInt8]) -> [UInt8] {
-        try! AES(key: key, blockMode: CBC(iv: iv), padding: .zeroPadding).decrypt(data)
+        try! AES(key: key, blockMode: CBC(iv: iv), padding: .pkcs7).decrypt(data)
     }
     
     func aes256CMac(data: [UInt8], key: [UInt8]) -> [UInt8] {
-        try! CBCMAC(key: key).authenticate(data)
+        assert(key.count == 16, "Session key must be 16 bytes for aes authentication to work: \(key.count)")
+        return try! CBCMAC(key: key).authenticate(data)
     }
     
     func iso7816_4Pad(data: [UInt8], blockSize: Int) -> [UInt8] {
@@ -51,8 +52,24 @@ class Crypto {
             return data
         }
     }
-    
+
     func pbkdf2(password: String, salt: [UInt8], iterations: Int, hmac: PBKDF2HMac) -> [UInt8] {
+        let keyLength: Int
+        let variant: HMAC.Variant
+
+        switch hmac {
+        case .sha256:
+            keyLength = 32
+            variant = .sha256
+        case .sha512:
+            keyLength = 64
+            variant = .sha512
+        }
+
+        return try! PKCS5.PBKDF2(password: Array(password.utf8), salt: salt, iterations: iterations, keyLength: keyLength, variant: variant).calculate()
+    }
+    
+    func new_pbkdf2(password: String, salt: [UInt8], iterations requiredIterations: Int? = nil, hmac: PBKDF2HMac) -> [UInt8] {
         let keyLength: Int
         let prf: CCPseudoRandomAlgorithm
 
@@ -78,14 +95,15 @@ class Crypto {
         if iterations == .max {
             preconditionFailure("PBKDF Calibration error")
         }
-        var outKey: [UInt8] = []
+        let pbkdfIterations = requiredIterations == nil ? iterations : UInt32(requiredIterations!)
+        var outKey: [UInt8] = [UInt8](repeating: 0, count: keyLength)
         let result = CCKeyDerivationPBKDF(CCPBKDFAlgorithm(kCCPBKDF2),
                                           &passwordBytes,
                                           passwordBytes.count,
                                           &saltBytes,
                                           saltBytes.count,
                                           prf,
-                                          iterations,
+                                          pbkdfIterations,
                                           &outKey,
                                           keyLength)
         if result == kCCParamError {
