@@ -1,6 +1,7 @@
 import secp256k1
 import CryptoSwift
-    
+import CommonCrypto
+
 enum PBKDF2HMac {
     case sha256
     case sha512
@@ -53,18 +54,44 @@ class Crypto {
     
     func pbkdf2(password: String, salt: [UInt8], iterations: Int, hmac: PBKDF2HMac) -> [UInt8] {
         let keyLength: Int
-        let variant: HMAC.Variant
-        
+        let prf: CCPseudoRandomAlgorithm
+
         switch hmac {
         case .sha256:
             keyLength = 32
-            variant = .sha256
+            prf = CCPseudoRandomAlgorithm(kCCPRFHmacAlgSHA256)
         case .sha512:
             keyLength = 64
-            variant = .sha512
+            prf = CCPseudoRandomAlgorithm(kCCPRFHmacAlgSHA512)
         }
 
-        return try! PKCS5.PBKDF2(password: Array(password.utf8), salt: salt, iterations: iterations, keyLength: keyLength, variant: variant).calculate()
+        precondition(salt.count < 133, "Salt must be less than 133 bytes length")
+        var saltBytes = salt
+        var passwordBytes = [UInt8](password.utf8).map { Int8(exactly: $0)! }
+        let timeMsec: UInt32 = 500
+        let iterations = CCCalibratePBKDF(CCPBKDFAlgorithm(kCCPBKDF2),
+                                          passwordBytes.count,
+                                          saltBytes.count,
+                                          prf,
+                                          keyLength,
+                                          timeMsec)
+        if iterations == .max {
+            preconditionFailure("PBKDF Calibration error")
+        }
+        var outKey: [UInt8] = []
+        let result = CCKeyDerivationPBKDF(CCPBKDFAlgorithm(kCCPBKDF2),
+                                          &passwordBytes,
+                                          passwordBytes.count,
+                                          &saltBytes,
+                                          saltBytes.count,
+                                          prf,
+                                          iterations,
+                                          &outKey,
+                                          keyLength)
+        if result == kCCParamError {
+            preconditionFailure("PBKDF error")
+        }
+        return outKey
     }
     
     func hmacSHA512(data: [UInt8], key: [UInt8]) -> [UInt8] {
