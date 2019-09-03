@@ -1,4 +1,4 @@
-enum StatusWord: UInt16, Error {
+public enum StatusWord: UInt16, Error {
     case ok = 0x9000
     case securityConditionNotSatisfied = 0x6982
     case authenticationMethodBlocked = 0x6983

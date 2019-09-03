@@ -14,40 +14,40 @@ enum AppCapability: UInt8 {
     case all = 0x0f
 }
 
-struct ApplicationInfo {
-    let instanceUID: [UInt8]
-    let freePairingSlots: Int
-    let appVersion: UInt16
-    let keyUID: [UInt8]
-    let secureChannelPubKey: [UInt8]
-    let initializedCard: Bool
-    let capabilities: UInt8
+public struct ApplicationInfo {
+    public let instanceUID: [UInt8]
+    public let freePairingSlots: Int
+    public let appVersion: UInt16
+    public let keyUID: [UInt8]
+    public let secureChannelPubKey: [UInt8]
+    public let initializedCard: Bool
+    public let capabilities: UInt8
 
-    var appVersionString: String {
+    public var appVersionString: String {
         return "\(appVersion >> 8).\(appVersion & 0xff)"
     }
 
-    var hasMasterKey: Bool {
+    public var hasMasterKey: Bool {
         return keyUID.count > 0
     }
 
-    var hasSecureChannelCapability: Bool {
+    public var hasSecureChannelCapability: Bool {
         return (capabilities & AppCapability.secureChannel.rawValue) != 0
     }
 
-    var hasKeyManagementCapability: Bool {
+    public var hasKeyManagementCapability: Bool {
         return (capabilities & AppCapability.keyManagement.rawValue) != 0
     }
 
-    var hasCredentialsManagementCapability: Bool {
+    public var hasCredentialsManagementCapability: Bool {
         return (capabilities & AppCapability.credentialsManagement.rawValue) != 0
     }
 
-    var hasNDEFCapability: Bool {
+    public var hasNDEFCapability: Bool {
         return (capabilities & AppCapability.ndef.rawValue) != 0
     }
 
-    init(_ data: [UInt8]) throws {
+    public init(_ data: [UInt8]) throws {
         let tlv = TinyBERTLV(data)
         let topTag = try tlv.readTag()
         tlv.unreadLastTag()

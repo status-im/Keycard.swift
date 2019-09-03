@@ -55,7 +55,7 @@ enum DuplicateKeyP1: UInt8 {
     case importKey = 0x03
 }
 
-enum GenerateMnemonicP1: UInt8 {
+public enum GenerateMnemonicP1: UInt8 {
     case length12Words = 0x04
     case length15Words = 0x05
     case length18Words = 0x06
