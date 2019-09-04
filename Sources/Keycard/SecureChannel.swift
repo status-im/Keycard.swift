@@ -1,3 +1,6 @@
+import CryptoSwift
+import Foundation
+
 class SecureChannel {
     static let secretLength = 32
     static let blockLength = 16
@@ -160,7 +163,10 @@ class SecureChannel {
     func oneShotEncrypt(data: [UInt8]) -> [UInt8] {
         self.iv = Crypto.shared.random(count: SecureChannel.blockLength)
         let encrypted = Crypto.shared.aes256Enc(data: data, iv: iv, key: secret!)
-        return [UInt8(self.publicKey!.count)] + publicKey! + iv + encrypted
+        let result = [UInt8(self.publicKey!.count)] + publicKey! + iv + encrypted
+
+        Logger.shared.log("oneShotEncrypt: iv=\(Data(iv).toHexString()) secret=\(Data(secret!).toHexString()) encrypted=\(Data(encrypted).toHexString()) ==> \(Data(result).toHexString())")
+        return result
     }
     
     private func encryptAPDU(_ data: [UInt8]) -> [UInt8] {
