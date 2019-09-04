@@ -136,7 +136,6 @@ class Crypto {
             secretKey = random(count: 32)
         } while secp256k1_ec_seckey_verify(secp256k1Ctx, &secretKey) != Int32(1)
         
-        
         return (secretKey, secp256k1PublicFromPrivate(secretKey))
     }
     
