@@ -21,11 +21,15 @@ class Crypto {
     }
     
     func aes256Enc(data: [UInt8], iv: [UInt8], key: [UInt8]) -> [UInt8] {
-        try! AES(key: key, blockMode: CBC(iv: iv), padding: .zeroPadding).encrypt(data)
+        let result = try! AES(key: key, blockMode: CBC(iv: iv), padding: .zeroPadding).encrypt(data)
+        Logger.shared.log("aes256Enc(data=\(Data(data).toHexString()) iv=\(Data(iv).toHexString()) key=\(Data(key).toHexString())) => \(Data(result).toHexString())")
+        return result
     }
     
     func aes256Dec(data: [UInt8], iv: [UInt8], key: [UInt8]) -> [UInt8] {
-        try! AES(key: key, blockMode: CBC(iv: iv), padding: .zeroPadding).decrypt(data)
+        let result = try! AES(key: key, blockMode: CBC(iv: iv), padding: .zeroPadding).decrypt(data)
+        Logger.shared.log("aes256Dec(data=\(Data(data).toHexString()) iv=\(Data(iv).toHexString()) key=\(Data(key).toHexString())) => \(Data(result).toHexString())")
+        return result
     }
     
     func aes256CMac(data: [UInt8], key: [UInt8]) -> [UInt8] {
@@ -135,7 +139,7 @@ class Crypto {
         repeat {
             secretKey = random(count: 32)
         } while secp256k1_ec_seckey_verify(secp256k1Ctx, &secretKey) != Int32(1)
-        
+
         return (secretKey, secp256k1PublicFromPrivate(secretKey))
     }
     

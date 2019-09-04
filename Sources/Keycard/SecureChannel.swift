@@ -162,10 +162,11 @@ class SecureChannel {
     
     func oneShotEncrypt(data: [UInt8]) -> [UInt8] {
         self.iv = Crypto.shared.random(count: SecureChannel.blockLength)
-        let encrypted = Crypto.shared.aes256Enc(data: data, iv: iv, key: secret!)
+        let paddedData = Crypto.shared.iso7816_4Pad(data: data, blockSize: SecureChannel.blockLength)
+        let encrypted = Crypto.shared.aes256Enc(data: paddedData, iv: iv, key: secret!)
         let result = [UInt8(self.publicKey!.count)] + publicKey! + iv + encrypted
 
-        Logger.shared.log("oneShotEncrypt: iv=\(Data(iv).toHexString()) secret=\(Data(secret!).toHexString()) encrypted=\(Data(encrypted).toHexString()) ==> \(Data(result).toHexString())")
+        Logger.shared.log("oneShotEncrypt: iv=\(Data(iv).toHexString()) secret=\(Data(secret!).toHexString()) padded=\(Data(paddedData).toHexString()) encrypted=\(Data(encrypted).toHexString()) ==> \(Data(result).toHexString())")
         return result
     }
     
