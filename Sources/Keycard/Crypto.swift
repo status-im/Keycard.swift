@@ -1,6 +1,7 @@
 import secp256k1
 import CryptoSwift
 import CommonCrypto
+import Foundation
 
 enum PBKDF2HMac {
     case sha256
