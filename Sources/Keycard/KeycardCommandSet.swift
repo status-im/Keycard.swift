@@ -1,3 +1,6 @@
+import Foundation
+import CryptoSwift
+
 public class KeycardCommandSet {
     let cardChannel: CardChannel
     let secureChannel: SecureChannel
@@ -236,7 +239,9 @@ public class KeycardCommandSet {
     }
     
     public func initialize(pin: String, puk: String, sharedSecret: [UInt8]) throws -> APDUResponse {
-        let cmd = APDUCommand(cla: CLA.proprietary.rawValue, ins: KeycardINS.initialize.rawValue, p1: 0, p2: 0, data: secureChannel.oneShotEncrypt(data: (Array((pin + puk).utf8) + sharedSecret)))
+        let data = (Array((pin + puk).utf8) + sharedSecret)
+        Logger.shared.log("initialize(pin=\(pin) puk=\(puk) sharedSecret=\(Data(sharedSecret).toHexString())): data=\(Data(data).toHexString())")
+        let cmd = APDUCommand(cla: CLA.proprietary.rawValue, ins: KeycardINS.initialize.rawValue, p1: 0, p2: 0, data: secureChannel.oneShotEncrypt(data: data))
         return try secureChannel.transmit(channel: cardChannel, cmd: cmd)
     }
 }
