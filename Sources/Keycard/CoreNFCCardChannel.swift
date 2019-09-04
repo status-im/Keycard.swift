@@ -23,8 +23,8 @@ public class CoreNFCCardChannel: CardChannel {
         dispatchPrecondition(condition: DispatchPredicate.notOnQueue(DispatchQueue.main))
 
         Logger.shared.log(String(format:
-            "CardChannel: ==> (cla=0x%02X ins=0x%02X p1=0x%02X p2=0x%02X data=0x%@ needsLE=%d)",
-            cmd.cla, cmd.ins, cmd.p1, cmd.p2, Data(cmd.data).toHexString(), cmd.needsLE ? 1 : 0))
+                                 "CardChannel: ==> (cla=0x%02X ins=0x%02X p1=0x%02X p2=0x%02X data=0x%@ needsLE=%d)",
+                                 cmd.cla, cmd.ins, cmd.p1, cmd.p2, Data(cmd.data).toHexString().uppercased(), cmd.needsLE ? 1 : 0))
 
         typealias APDUResult = (responseData: Data, sw1: UInt8, sw2: UInt8, error: Swift.Error?)
 
