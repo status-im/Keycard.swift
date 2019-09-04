@@ -4,8 +4,8 @@ import CryptoSwift
 public class KeycardCommandSet {
     let cardChannel: CardChannel
     let secureChannel: SecureChannel
-    var info: ApplicationInfo?
-    var pairing: Pairing? { get { secureChannel.pairing } set { secureChannel.pairing = newValue }}
+    public var info: ApplicationInfo?
+    public var pairing: Pairing? { get { secureChannel.pairing } set { secureChannel.pairing = newValue }}
 
     public init(cardChannel: CardChannel) {
         self.cardChannel = cardChannel
