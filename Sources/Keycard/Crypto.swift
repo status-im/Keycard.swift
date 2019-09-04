@@ -29,8 +29,9 @@ class Crypto {
     }
     
     func aes256CMac(data: [UInt8], key: [UInt8]) -> [UInt8] {
-        assert(key.count == 16, "Session key must be 16 bytes for aes authentication to work: \(key.count)")
-        return try! CBCMAC(key: key).authenticate(data)
+        let result = aes256Enc(data: data, iv: [UInt8](repeating: 0, count: SecureChannel.blockLength), key: key).suffix(16)
+        assert(result.count == 16, "CMac must be 16 bytes long but it is \(result.count)")
+        return Array(result)
     }
     
     func iso7816_4Pad(data: [UInt8], blockSize: Int) -> [UInt8] {
