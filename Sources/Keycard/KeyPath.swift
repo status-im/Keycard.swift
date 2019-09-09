@@ -1,13 +1,13 @@
-  enum KeyPathError: Error {
+  public enum KeyPathError: Error {
         case tooManyComponents
         case invalidCharacters
   }
   
-  struct KeyPath: CustomStringConvertible {
-    let source: DeriveKeyP1
-    var data: [UInt8]
+  public struct KeyPath: CustomStringConvertible {
+    public let source: DeriveKeyP1
+    public var data: [UInt8]
     
-    var description: String {
+    public var description: String {
         get {
             var desc: String
             
@@ -40,7 +40,7 @@
         }
     }
 
-    init(_ keyPath: String) throws {
+    public init(_ keyPath: String) throws {
         let components = keyPath.split(separator: "/")
         var pathComponents = components.dropFirst()
         
@@ -71,7 +71,7 @@
         }
     }
     
-    init(data: [UInt8], source: DeriveKeyP1 = DeriveKeyP1.fromMaster) {
+    public init(data: [UInt8], source: DeriveKeyP1 = DeriveKeyP1.fromMaster) {
         self.data = data
         self.source = source
     }

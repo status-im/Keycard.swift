@@ -25,30 +25,30 @@ enum KeycardINS: UInt8 {
     case exportKey = 0xc2
 }
 
-enum ChangePINP1: UInt8 {
+public enum ChangePINP1: UInt8 {
     case userPIN = 0x00
     case puk = 0x01
     case pairingSecret = 0x02
 }
 
-enum GetStatusP1: UInt8 {
+public enum GetStatusP1: UInt8 {
     case application = 0x00
     case keyPath = 0x01
 }
 
-enum LoadKeyP1: UInt8 {
+public enum LoadKeyP1: UInt8 {
     case ec = 0x01
     case extEC = 0x02
     case seed = 0x03
 }
 
-enum DeriveKeyP1: UInt8 {
+public enum DeriveKeyP1: UInt8 {
     case fromMaster = 0x00
     case fromParent = 0x40
     case fromCurrent = 0x80
 }
 
-enum DuplicateKeyP1: UInt8 {
+public enum DuplicateKeyP1: UInt8 {
     case start = 0x00
     case addEntropy = 0x01
     case exportKey = 0x02
@@ -63,20 +63,20 @@ public enum GenerateMnemonicP1: UInt8 {
     case length24Words = 0x08
 }
 
-enum SignP1: UInt8 {
+public enum SignP1: UInt8 {
     case currentKey = 0x00
     case deriveKey = 0x01
     case deriveAndMakeCurrent = 0x02
     case pinless = 0x03
 }
 
-enum ExportKeyP1: UInt8 {
+public enum ExportKeyP1: UInt8 {
     case currentKey = 0x00
     case deriveKey = 0x01
     case deriveAndMakeCurrent = 0x02
 }
 
-enum ExportKeyP2: UInt8 {
+public enum ExportKeyP2: UInt8 {
     case privateAndPublic = 0x00
     case publicOnly = 0x01
 }
@@ -88,12 +88,12 @@ enum SecureChannelINS: UInt8 {
     case unpair = 0x13
 }
 
-enum PairP1: UInt8 {
+public enum PairP1: UInt8 {
     case firstStep = 0x00
     case lastStep = 0x01
 }
 
-enum Identifier: String {
+public enum Identifier: String {
     case packageAID = "A0000008040001"
     case keycardAID = "A000000804000101"
     case ndefAID = "A000000804000102"
@@ -101,11 +101,11 @@ enum Identifier: String {
     case keycardCashAID = "A000000804000103"
     case keycardCashInstanceAID = "A00000080400010301"
 
-    var val: [UInt8] {
+    public var val: [UInt8] {
         return rawValue.hexToBytes
     }
 
-    static func getKeycardInstanceAID(instanceId: UInt8 = 1) -> [UInt8] {
+    public static func getKeycardInstanceAID(instanceId: UInt8 = 1) -> [UInt8] {
         precondition(instanceId >= 1, "The instance index must be between 1 and 255")
         return keycardAID.val + [instanceId]
     }

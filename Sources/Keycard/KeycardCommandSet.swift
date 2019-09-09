@@ -76,8 +76,8 @@ public class KeycardCommandSet {
         let cmd = secureChannel.protectedCommand(cla: CLA.proprietary.rawValue, ins: KeycardINS.getStatus.rawValue, p1: info, p2: 0, data: [])
         return try secureChannel.transmit(channel: cardChannel, cmd: cmd)
     }
-    
-    public func getStatus(ndef: [UInt8]) throws -> APDUResponse {
+
+    public func setNDEF(ndef: [UInt8]) throws -> APDUResponse {
         let cmd = secureChannel.protectedCommand(cla: CLA.proprietary.rawValue, ins: KeycardINS.setNDEF.rawValue, p1: 0, p2: 0, data: ndef)
         return try secureChannel.transmit(channel: cardChannel, cmd: cmd)
     }
