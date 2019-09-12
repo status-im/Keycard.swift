@@ -123,6 +123,7 @@ class SecureChannel {
         let finalData: [UInt8];
         
         if open {
+            Logger.shared.log("SecureChannel: ==> protected: (cla=\(String(cla, radix:16)) ins=\(String(ins, radix:16)) p1=\(String(p1, radix:16)) p2=\(String(p2, radix:16)) data:\(Data(data).toHexString()))")
             let encrypted = encryptAPDU(data);
             let meta: [UInt8] = [cla, ins, p1, p2, UInt8(encrypted.count + SecureChannel.blockLength), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
             updateIV(meta: meta, data: encrypted);
@@ -153,8 +154,9 @@ class SecureChannel {
             if self.iv != mac {
                 throw CardError.invalidMac
             }
-            
-            return APDUResponse(rawData: plainData)
+            let result = APDUResponse(rawData: plainData)
+            Logger.shared.log("SecureChannel: <== decrypted: (data=\(Data(result.data).toHexString()) sw1=\(String(result.sw1, radix:16)) sw2=\(String(result.sw2, radix:16)))")
+            return result
         } else {
             return rsp;
         }

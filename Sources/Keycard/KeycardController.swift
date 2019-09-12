@@ -107,8 +107,7 @@ extension KeycardController: NFCTagReaderSessionDelegate {
         }
         session.connect(to: first) { [weak self] error in
             guard let `self` = self else { return }
-            if let error = error {
-                // TODO: should I call onFailure() explicitly here?
+            if error != nil {
                 self.stop(errorMessage: self.alertMessages.tagConnectionError)
                 return
             }
