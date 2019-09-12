@@ -6,6 +6,7 @@ public class KeycardCommandSet {
     let secureChannel: SecureChannel
     public var info: ApplicationInfo?
     public var pairing: Pairing? { get { secureChannel.pairing } set { secureChannel.pairing = newValue }}
+    public var isSecureChannelOpen: Bool { return secureChannel.open }
 
     public init(cardChannel: CardChannel) {
         self.cardChannel = cardChannel

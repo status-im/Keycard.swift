@@ -1,4 +1,4 @@
-enum CardError: Error {
+public enum CardError: Error {
     case wrongPIN(retryCounter: Int)
     case unrecoverableSignature
     case invalidState
