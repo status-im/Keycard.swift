@@ -15,6 +15,7 @@ enum AppCapability: UInt8 {
 }
 
 public struct ApplicationInfo {
+
     public let instanceUID: [UInt8]
     public let freePairingSlots: Int
     public let appVersion: UInt16
@@ -85,4 +86,21 @@ public struct ApplicationInfo {
 
         initializedCard = true
     }
+
+    public init(instanceUID: [UInt8],
+                freePairingSlots: Int,
+                appVersion: UInt16,
+                keyUID: [UInt8],
+                secureChannelPubKey: [UInt8],
+                initializedCard: Bool,
+                capabilities: UInt8) {
+        self.instanceUID = instanceUID
+        self.freePairingSlots = freePairingSlots
+        self.appVersion = appVersion
+        self.keyUID = keyUID
+        self.secureChannelPubKey = secureChannelPubKey
+        self.initializedCard = initializedCard
+        self.capabilities = capabilities
+    }
+
 }
