@@ -11,5 +11,4 @@ public enum StatusWord: UInt16, Error {
     case dataInvalid = 0x6A80
     case allPairingSlotsTaken = 0x6A84
     case alreadyInitialized = 0x6D00
-
 }

@@ -3,13 +3,13 @@ enum ECDSASignatureTag: UInt8 {
     case ecdsaTemplate = 0x30
 }
 
-struct RecoverableSignature {
-    let publicKey: [UInt8]
-    let recId: UInt8
-    let r: [UInt8]
-    let s: [UInt8]
+public struct RecoverableSignature {
+    public let publicKey: [UInt8]
+    public let recId: UInt8
+    public let r: [UInt8]
+    public let s: [UInt8]
     
-    init(hash: [UInt8], data: [UInt8]) throws {
+    public init(hash: [UInt8], data: [UInt8]) throws {
         let tlv = TinyBERTLV(data)
         _ = try tlv.enterConstructed(tag: ECDSASignatureTag.signatureTemplate.rawValue)
         self.publicKey = try tlv.readPrimitive(tag: AppInfoTag.pubKey.rawValue)
