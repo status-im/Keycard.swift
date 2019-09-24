@@ -9,7 +9,4 @@ Pod::Spec.new do |spec|
 	spec.summary = 'Keycard'
 	spec.swift_version = '4.2'
 	spec.dependency 'CryptoSwift'
-  
-  
-  // @todo secp256k1
 end
