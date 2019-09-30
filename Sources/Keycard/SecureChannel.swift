@@ -1,3 +1,6 @@
+import CryptoSwift
+import Foundation
+
 class SecureChannel {
     static let secretLength = 32
     static let blockLength = 16
@@ -120,6 +123,7 @@ class SecureChannel {
         let finalData: [UInt8];
         
         if open {
+            Logger.shared.log("SecureChannel: ==> protected: (cla=\(String(cla, radix:16)) ins=\(String(ins, radix:16)) p1=\(String(p1, radix:16)) p2=\(String(p2, radix:16)) data:\(Data(data).toHexString()))")
             let encrypted = encryptAPDU(data);
             let meta: [UInt8] = [cla, ins, p1, p2, UInt8(encrypted.count + SecureChannel.blockLength), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
             updateIV(meta: meta, data: encrypted);
@@ -150,8 +154,9 @@ class SecureChannel {
             if self.iv != mac {
                 throw CardError.invalidMac
             }
-            
-            return APDUResponse(rawData: plainData)
+            let result = APDUResponse(rawData: plainData)
+            Logger.shared.log("SecureChannel: <== decrypted: (data=\(Data(result.data).toHexString()) sw1=\(String(result.sw1, radix:16)) sw2=\(String(result.sw2, radix:16)))")
+            return result
         } else {
             return rsp;
         }
@@ -159,8 +164,12 @@ class SecureChannel {
     
     func oneShotEncrypt(data: [UInt8]) -> [UInt8] {
         self.iv = Crypto.shared.random(count: SecureChannel.blockLength)
-        let encrypted = Crypto.shared.aes256Enc(data: data, iv: iv, key: secret!)
-        return [UInt8(self.publicKey!.count)] + publicKey! + iv + encrypted
+        let paddedData = Crypto.shared.iso7816_4Pad(data: data, blockSize: SecureChannel.blockLength)
+        let encrypted = Crypto.shared.aes256Enc(data: paddedData, iv: iv, key: secret!)
+        let result = [UInt8(self.publicKey!.count)] + publicKey! + iv + encrypted
+
+        Logger.shared.log("oneShotEncrypt: iv=\(Data(iv).toHexString()) secret=\(Data(secret!).toHexString()) padded=\(Data(paddedData).toHexString()) encrypted=\(Data(encrypted).toHexString()) ==> \(Data(result).toHexString())")
+        return result
     }
     
     private func encryptAPDU(_ data: [UInt8]) -> [UInt8] {

@@ -1,19 +1,19 @@
-enum BIP32KeyTag: UInt8 {
+public enum BIP32KeyTag: UInt8 {
     case template = 0xA1
     case pubKey = 0x80
     case privKey = 0x81
     case chainCode = 0x82
 }
 
-struct BIP32KeyPair {
-    let privateKey: [UInt8]?
-    let chainCode: [UInt8]?
-    let publicKey: [UInt8]
+public struct BIP32KeyPair {
+    public let privateKey: [UInt8]?
+    public let chainCode: [UInt8]?
+    public let publicKey: [UInt8]
     
-    var isPublicOnly: Bool { get { privateKey == nil } }
-    var isExtended: Bool { get { chainCode != nil } }
+    public var isPublicOnly: Bool { get { privateKey == nil } }
+    public var isExtended: Bool { get { chainCode != nil } }
     
-    init(privateKey: [UInt8]?, chainCode: [UInt8]?, publicKey: [UInt8]?) {
+    public init(privateKey: [UInt8]?, chainCode: [UInt8]?, publicKey: [UInt8]?) {
         precondition(privateKey != nil || (chainCode == nil && publicKey != nil))
         
         if (privateKey != nil) {
@@ -31,12 +31,12 @@ struct BIP32KeyPair {
         }
     }
     
-    init(fromSeed binarySeed: [UInt8]) {
+    public init(fromSeed binarySeed: [UInt8]) {
         let mac = Crypto.shared.hmacSHA512(data: binarySeed, key: Array("Bitcoin Seed".utf8))
         self.init(privateKey: Array(mac[0..<32]), chainCode: Array(mac[32...]), publicKey: nil)
     }
     
-    init(fromTLV tlvData: [UInt8]) throws {
+    public init(fromTLV tlvData: [UInt8]) throws {
         let tlv = TinyBERTLV(tlvData)
         _ = try tlv.enterConstructed(tag: BIP32KeyTag.template.rawValue)
         
@@ -77,7 +77,7 @@ struct BIP32KeyPair {
         self.init(privateKey: privKey, chainCode: chain, publicKey: pubKey)
     }
     
-    func toTLV(includePublic: Bool = true) -> [UInt8] {
+    public func toTLV(includePublic: Bool = true) -> [UInt8] {
         var totalLength = 0
         
         totalLength += includePublic ? publicKey.count + 2 : 0
@@ -113,7 +113,7 @@ struct BIP32KeyPair {
         return data
     }
     
-    func toEthereumAddress() -> [UInt8] {
+    public func toEthereumAddress() -> [UInt8] {
         Crypto.shared.secp256k1PublicToEthereumAddress(self.publicKey)
     }
 }

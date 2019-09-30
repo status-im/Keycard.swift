@@ -1,6 +1,8 @@
 import secp256k1
 import CryptoSwift
-    
+import CommonCrypto
+import Foundation
+
 enum PBKDF2HMac {
     case sha256
     case sha512
@@ -20,15 +22,21 @@ class Crypto {
     }
     
     func aes256Enc(data: [UInt8], iv: [UInt8], key: [UInt8]) -> [UInt8] {
-        try! AES(key: key, blockMode: CBC(iv: iv), padding: .noPadding).encrypt(data)
+        let result = try! AES(key: key, blockMode: CBC(iv: iv), padding: .noPadding).encrypt(data)
+        Logger.shared.log("aes256Enc(data=\(Data(data).toHexString()) iv=\(Data(iv).toHexString()) key=\(Data(key).toHexString())) => \(Data(result).toHexString())")
+        return result
     }
     
     func aes256Dec(data: [UInt8], iv: [UInt8], key: [UInt8]) -> [UInt8] {
-        try! AES(key: key, blockMode: CBC(iv: iv), padding: .noPadding).decrypt(data)
+        let result = try! AES(key: key, blockMode: CBC(iv: iv), padding: .noPadding).decrypt(data)
+        Logger.shared.log("aes256Dec(data=\(Data(data).toHexString()) iv=\(Data(iv).toHexString()) key=\(Data(key).toHexString())) => \(Data(result).toHexString())")
+        return result
     }
     
     func aes256CMac(data: [UInt8], key: [UInt8]) -> [UInt8] {
-        try! CBCMAC(key: key).authenticate(data)
+        let result = aes256Enc(data: data, iv: [UInt8](repeating: 0, count: SecureChannel.blockLength), key: key).suffix(16)
+        assert(result.count == 16, "CMac must be 16 bytes long but it is \(result.count)")
+        return Array(result)
     }
     
     func iso7816_4Pad(data: [UInt8], blockSize: Int) -> [UInt8] {
@@ -50,21 +58,49 @@ class Crypto {
             return data
         }
     }
-    
-    func pbkdf2(password: String, salt: [UInt8], iterations: Int, hmac: PBKDF2HMac) -> [UInt8] {
+
+    func pbkdf2(password: String, salt: [UInt8], iterations requiredIterations: Int? = nil, hmac: PBKDF2HMac) -> [UInt8] {
+        // implemented using CommonCrypto because it is much faster (ms vs s) on the device than CryptoSwfit implementation.
         let keyLength: Int
-        let variant: HMAC.Variant
-        
+        let prf: CCPseudoRandomAlgorithm
+
         switch hmac {
         case .sha256:
             keyLength = 32
-            variant = .sha256
+            prf = CCPseudoRandomAlgorithm(kCCPRFHmacAlgSHA256)
         case .sha512:
             keyLength = 64
-            variant = .sha512
+            prf = CCPseudoRandomAlgorithm(kCCPRFHmacAlgSHA512)
         }
 
-        return try! PKCS5.PBKDF2(password: Array(password.utf8), salt: salt, iterations: iterations, keyLength: keyLength, variant: variant).calculate()
+        precondition(salt.count < 133, "Salt must be less than 133 bytes length")
+        var saltBytes = salt
+        var passwordBytes = [UInt8](password.utf8).map { Int8(exactly: $0)! }
+        let timeMsec: UInt32 = 500
+        let iterations = CCCalibratePBKDF(CCPBKDFAlgorithm(kCCPBKDF2),
+                                          passwordBytes.count,
+                                          saltBytes.count,
+                                          prf,
+                                          keyLength,
+                                          timeMsec)
+        if iterations == .max {
+            preconditionFailure("PBKDF Calibration error")
+        }
+        let pbkdfIterations = requiredIterations == nil ? iterations : UInt32(requiredIterations!)
+        var outKey: [UInt8] = [UInt8](repeating: 0, count: keyLength)
+        let result = CCKeyDerivationPBKDF(CCPBKDFAlgorithm(kCCPBKDF2),
+                                          &passwordBytes,
+                                          passwordBytes.count,
+                                          &saltBytes,
+                                          saltBytes.count,
+                                          prf,
+                                          pbkdfIterations,
+                                          &outKey,
+                                          keyLength)
+        if result == kCCParamError {
+            preconditionFailure("PBKDF error")
+        }
+        return outKey
     }
     
     func hmacSHA512(data: [UInt8], key: [UInt8]) -> [UInt8] {
@@ -89,8 +125,7 @@ class Crypto {
         repeat {
             secretKey = random(count: 32)
         } while secp256k1_ec_seckey_verify(secp256k1Ctx, &secretKey) != Int32(1)
-        
-        
+
         return (secretKey, secp256k1PublicFromPrivate(secretKey))
     }
     

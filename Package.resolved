@@ -14,9 +14,9 @@
         "package": "secp256k1",
         "repositoryURL": "https://github.com/status-im/secp256k1.swift.git",
         "state": {
-          "branch": null,
-          "revision": "8d9f5ae68a56fde915cafd797a8ff19ccb6b98f3",
-          "version": "0.1.5"
+          "branch": "master",
+          "revision": "d2c49786e9245d77f4eba6ce78a87f87506623c5",
+          "version": null
         }
       }
     ]
