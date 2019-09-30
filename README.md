@@ -5,11 +5,3 @@ This is a Swift SDK to integrate [Keycard](https://github.com/status-im/status-k
 This SDK is a work in progress, please check the Issues to contribute.
 
 To integrate Keycard with Android or Desktop, please refer to [Keycard Java SDK](https://github.com/status-im/status-keycard-java). Keycard also has a [Go SDK](https://github.com/status-im/keycard-go/).
-
-
-Xcode generated project
-libsecp256k1 header search paths missing "$(SRCROOT)/../secp2561k/Classes" prefixes
-
-https://forums.swift.org/t/headersearchpath-issue/26468/6
-
-

@@ -59,23 +59,8 @@ class Crypto {
         }
     }
 
-    func pbkdf2(password: String, salt: [UInt8], iterations: Int, hmac: PBKDF2HMac) -> [UInt8] {
-        let keyLength: Int
-        let variant: HMAC.Variant
-
-        switch hmac {
-        case .sha256:
-            keyLength = 32
-            variant = .sha256
-        case .sha512:
-            keyLength = 64
-            variant = .sha512
-        }
-
-        return try! PKCS5.PBKDF2(password: Array(password.utf8), salt: salt, iterations: iterations, keyLength: keyLength, variant: variant).calculate()
-    }
-    
-    func new_pbkdf2(password: String, salt: [UInt8], iterations requiredIterations: Int? = nil, hmac: PBKDF2HMac) -> [UInt8] {
+    func pbkdf2(password: String, salt: [UInt8], iterations requiredIterations: Int? = nil, hmac: PBKDF2HMac) -> [UInt8] {
+        // implemented using CommonCrypto because it is much faster (ms vs s) on the device than CryptoSwfit implementation.
         let keyLength: Int
         let prf: CCPseudoRandomAlgorithm
 

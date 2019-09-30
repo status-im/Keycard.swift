@@ -5,7 +5,7 @@ open class Logger {
 
     static var shared: Logger = Logger()
 
-    public var isEnabled = true
+    public var isEnabled = false
 
     public init() {}
 

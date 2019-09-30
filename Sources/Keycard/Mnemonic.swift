@@ -4,7 +4,10 @@ class Mnemonic {
     static let bip39IterationCount = 2048
     
     static func toBinarySeed(mnemonicPhrase: String, password: String = "") -> [UInt8] {
-        Crypto.shared.new_pbkdf2(password: mnemonicPhrase, salt: Array(("mnemonic" + password).utf8), iterations: Mnemonic.bip39IterationCount, hmac: PBKDF2HMac.sha512)
+        Crypto.shared.pbkdf2(password: mnemonicPhrase,
+                             salt: Array(("mnemonic" + password).utf8),
+                             iterations: Mnemonic.bip39IterationCount,
+                             hmac: PBKDF2HMac.sha512)
     }
     
     let indexes: [UInt16]
