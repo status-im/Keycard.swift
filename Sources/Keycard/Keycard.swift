@@ -10,7 +10,6 @@ enum ISO7816INS: UInt8 {
 enum KeycardINS: UInt8 {
     case initialize = 0xfe
     case getStatus = 0xf2
-    case setNDEF = 0xf3
     case verifyPIN = 0x20
     case changePIN = 0x21
     case unblockPIN = 0x22
@@ -19,10 +18,11 @@ enum KeycardINS: UInt8 {
     case generateMnemonic = 0xd2
     case removeKey = 0xd3
     case generateKey = 0xd4
-    case duplicateKey = 0xd5
     case sign = 0xc0
     case setPinlessPath = 0xc1
     case exportKey = 0xc2
+    case getData = 0xca
+    case storeData = 0xe2
 }
 
 public enum ChangePINP1: UInt8 {
@@ -91,6 +91,12 @@ enum SecureChannelINS: UInt8 {
 public enum PairP1: UInt8 {
     case firstStep = 0x00
     case lastStep = 0x01
+}
+
+public enum StoreDataP1: UInt8 {
+    case publicData = 0x00
+    case ndef = 0x01
+    case cash = 0x02
 }
 
 public enum Identifier: String {

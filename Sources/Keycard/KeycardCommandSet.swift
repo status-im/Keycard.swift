@@ -82,7 +82,22 @@ public class KeycardCommandSet {
     }
 
     public func setNDEF(ndef: [UInt8]) throws -> APDUResponse {
-        let cmd = secureChannel.protectedCommand(cla: CLA.proprietary.rawValue, ins: KeycardINS.setNDEF.rawValue, p1: 0, p2: 0, data: ndef)
+        let len = (Int(ndef[0]) << 8) | Int(ndef[1])
+        
+        if len != (ndef.count - 2) {
+            ndef = [UInt8(ndef.count >> 8), UInt8(ndef.count & 0xff)] + ndef
+        }
+        
+        return try storeData(data: ndef, type: StoreDataP1.ndef.rawValue)
+    }
+    
+    public func storeData(data: [UInt8], type: UInt8) throws -> APDUResponse {
+        let cmd = secureChannel.protectedCommand(cla: CLA.proprietary.rawValue, ins: KeycardINS.storeData.rawValue, p1: type, p2: 0, data: data)
+        return try secureChannel.transmit(channel: cardChannel, cmd: cmd)
+    }
+    
+    public func getData(type: UInt8) throws -> APDUResponse {
+        let cmd = secureChannel.protectedCommand(cla: CLA.proprietary.rawValue, ins: KeycardINS.getData.rawValue, p1: type, p2: 0, data: data)
         return try secureChannel.transmit(channel: cardChannel, cmd: cmd)
     }
     
@@ -151,28 +166,6 @@ public class KeycardCommandSet {
     
     public func generateKey() throws -> APDUResponse {
         let cmd = secureChannel.protectedCommand(cla: CLA.proprietary.rawValue, ins: KeycardINS.generateKey.rawValue, p1: 0, p2: 0, data: [])
-        return try secureChannel.transmit(channel: cardChannel, cmd: cmd)
-    }
-    
-    public func duplicateKeyStart(entropyCount: UInt8, firstEntropy: [UInt8]) throws -> APDUResponse {
-        try duplicateKey(p1: DuplicateKeyP1.start.rawValue, p2: entropyCount, data: firstEntropy)
-    }
-    
-    public func duplicateKeyAddEntropy(entropy: [UInt8]) throws -> APDUResponse {
-        let cmd = APDUCommand(cla: CLA.proprietary.rawValue, ins: KeycardINS.duplicateKey.rawValue, p1: DuplicateKeyP1.addEntropy.rawValue, p2: 0, data: secureChannel.oneShotEncrypt(data: entropy))
-        return try secureChannel.transmit(channel: cardChannel, cmd: cmd)
-    }
-    
-    public func duplicateKeyExport() throws -> APDUResponse {
-        try duplicateKey(p1: DuplicateKeyP1.exportKey.rawValue, p2: 0, data: [])
-    }
-    
-    public func duplicateKeyImport(key: [UInt8]) throws -> APDUResponse {
-        try duplicateKey(p1: DuplicateKeyP1.importKey.rawValue, p2: 0, data: key)
-    }
-    
-    public func duplicateKey(p1: UInt8, p2: UInt8, data: [UInt8]) throws -> APDUResponse {
-        let cmd = secureChannel.protectedCommand(cla: CLA.proprietary.rawValue, ins: KeycardINS.duplicateKey.rawValue, p1: p1, p2: p2, data: data)
         return try secureChannel.transmit(channel: cardChannel, cmd: cmd)
     }
     
