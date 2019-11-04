@@ -84,11 +84,15 @@ public class KeycardCommandSet {
     public func setNDEF(ndef: [UInt8]) throws -> APDUResponse {
         let len = (Int(ndef[0]) << 8) | Int(ndef[1])
         
+        var finalNDEF: [UInt8]
+        
         if len != (ndef.count - 2) {
-            ndef = [UInt8(ndef.count >> 8), UInt8(ndef.count & 0xff)] + ndef
+            finalNDEF = [UInt8(ndef.count >> 8), UInt8(ndef.count & 0xff)] + ndef
+        } else {
+            finalNDEF = ndef
         }
         
-        return try storeData(data: ndef, type: StoreDataP1.ndef.rawValue)
+        return try storeData(data: finalNDEF, type: StoreDataP1.ndef.rawValue)
     }
     
     public func storeData(data: [UInt8], type: UInt8) throws -> APDUResponse {
@@ -97,7 +101,7 @@ public class KeycardCommandSet {
     }
     
     public func getData(type: UInt8) throws -> APDUResponse {
-        let cmd = secureChannel.protectedCommand(cla: CLA.proprietary.rawValue, ins: KeycardINS.getData.rawValue, p1: type, p2: 0, data: data)
+        let cmd = secureChannel.protectedCommand(cla: CLA.proprietary.rawValue, ins: KeycardINS.getData.rawValue, p1: type, p2: 0, data: [])
         return try secureChannel.transmit(channel: cardChannel, cmd: cmd)
     }
     
