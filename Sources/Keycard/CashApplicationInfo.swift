@@ -1,11 +1,11 @@
-enum AppInfoTag: UInt8 {
+enum CashAppInfoTag: UInt8 {
     case template = 0xA4
     case pubKey = 0x80
     case pubData = 0x82
 }
 
 public struct CashApplicationInfo {
-    public let secureChannelPubKey: [UInt8]
+    public let pubKey: [UInt8]
     public let appVersion: UInt16
     public let pubData: [UInt8]
     
@@ -16,18 +16,16 @@ public struct CashApplicationInfo {
     public init(_ data: [UInt8]) throws {
         let tlv = TinyBERTLV(data)
         
-        _ = try tlv.enterConstructed(tag: AppInfoTag.template.rawValue)
-        secureChannelPubKey = try tlv.readPrimitive(tag: AppInfoTag.pubKey.rawValue)
+        _ = try tlv.enterConstructed(tag: CashAppInfoTag.template.rawValue)
+        pubKey = try tlv.readPrimitive(tag: CashAppInfoTag.pubKey.rawValue)
         appVersion = try UInt16(tlv.readInt())
-        keyUID = try tlv.readPrimitive(tag: AppInfoTag.pubData.rawValue)
+        pubData = try tlv.readPrimitive(tag: CashAppInfoTag.pubData.rawValue)
     }
     
-    public init(secureChannelPubKey: [UInt8],
-                appVersion: UInt16,
-                pubData: [UInt8]) {
-        self.secureChannelPubKey = secureChannelPubKey
+    public init(pubKey: [UInt8], appVersion: UInt16, pubData: [UInt8]) {
+        self.pubKey = pubKey
         self.appVersion = appVersion
-        self.pubData = initializedCard
+        self.pubData = pubData
     }
     
 }
