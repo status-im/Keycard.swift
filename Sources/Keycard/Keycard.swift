@@ -23,6 +23,7 @@ enum KeycardINS: UInt8 {
     case exportKey = 0xc2
     case getData = 0xca
     case storeData = 0xe2
+    case setNDEF = 0xf3
 }
 
 public enum ChangePINP1: UInt8 {
