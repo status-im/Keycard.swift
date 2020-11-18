@@ -3,6 +3,7 @@ import XCTest
 import CoreNFC
 @testable import Keycard
 
+@available(iOS 13.0, *)
 final class NFCTests: XCTestCase {
 
     func test_serialization() {

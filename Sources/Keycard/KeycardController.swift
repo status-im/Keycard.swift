@@ -1,6 +1,7 @@
 import Foundation
 import CoreNFC
 
+@available(iOS 13.0, *)
 open class KeycardController: NSObject {
 
     /// Whether the device supports the Keycard reading
@@ -85,6 +86,7 @@ open class KeycardController: NSObject {
 
 }
 
+@available(iOS 13.0, *)
 extension KeycardController: NFCTagReaderSessionDelegate {
 
     public func tagReaderSessionDidBecomeActive(_ session: NFCTagReaderSession) {
