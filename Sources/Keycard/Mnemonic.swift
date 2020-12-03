@@ -1,6 +1,6 @@
 import Foundation
 
-class Mnemonic {
+public class Mnemonic {
     static let bip39IterationCount = 2048
     
     static func toBinarySeed(mnemonicPhrase: String, password: String = "") -> [UInt8] {
