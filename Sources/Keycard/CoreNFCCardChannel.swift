@@ -1,5 +1,6 @@
 import Foundation
 import CoreNFC
+import os.log
 
 @available(iOS 13.0, *)
 public class CoreNFCCardChannel: CardChannel {
@@ -23,8 +24,7 @@ public class CoreNFCCardChannel: CardChannel {
     public func send(_ cmd: APDUCommand) throws -> APDUResponse {
         dispatchPrecondition(condition: DispatchPredicate.notOnQueue(DispatchQueue.main))
 
-        Logger.shared.log(String(format: "CardChannel: ==> (cla=0x%02X ins=0x%02X p1=0x%02X p2=0x%02X data=0x%@ needsLE=%d)",
-                                 cmd.cla, cmd.ins, cmd.p1, cmd.p2, Data(cmd.data).toHexString().uppercased(), cmd.needsLE ? 1 : 0))
+        os_log("CardChannel: ==> (cla=0x%02X ins=0x%02X p1=0x%02X p2=0x%02X lc=0x%02X)", log: .default, type: .debug, cmd.cla, cmd.ins, cmd.p1, cmd.p2, cmd.data.count)
 
         typealias APDUResult = (responseData: Data, sw1: UInt8, sw2: UInt8, error: Swift.Error?)
 
@@ -37,14 +37,13 @@ public class CoreNFCCardChannel: CardChannel {
         let semaphore = DispatchSemaphore(value: 0)
         tag.sendCommand(apdu: apdu) {
             result = ($0, $1, $2, $3)
-            Logger.shared.log(String(format: "CardChannel: <== (data=0x%@ sw1=0x%02X sw2=0x%02X)",
-                                     result.responseData.toHexString().uppercased(), result.sw1, result.sw2))
+            os_log("CardChannel: <== (data len=0x%02X sw=0x%02X%02X)", log: .default, type: .debug, result.responseData.count, result.sw1, result.sw2)
             semaphore.signal()
         }
         semaphore.wait()
 
         if let error = result.error {
-            Logger.shared.log("CardChannel: error: \(error)")
+            os_log("CardChannel: error: %@", error.localizedDescription)
             throw error
         }
         return APDUResponse(sw1: result.sw1, sw2: result.sw2, data: result.responseData.bytes)

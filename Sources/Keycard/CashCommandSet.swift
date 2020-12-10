@@ -12,9 +12,7 @@ public class CashCommandSet {
         return try cardChannel.send(selectApplet)
     }
     
-    public func sign(data: [UInt8]) throws -> APDUResponse {
-        Logger.shared.log("sign data=\(Data(data).toHexString())")
-        
+    public func sign(data: [UInt8]) throws -> APDUResponse {       
         let cmd = APDUCommand(cla: CLA.proprietary.rawValue, ins: KeycardINS.sign.rawValue, p1: 0, p2: 0, data: data)
         return try cardChannel.send(cmd)
     }

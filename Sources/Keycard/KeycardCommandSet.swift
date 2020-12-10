@@ -179,14 +179,11 @@ public class KeycardCommandSet {
     }
 
     public func sign(hash: [UInt8]) throws -> APDUResponse {
-        Logger.shared.log("sign hash=\(Data(hash).toHexString())")
         return try sign(p1: SignP1.currentKey.rawValue, data: hash)
     }
 
     public func sign(hash: [UInt8], path: String, makeCurrent: Bool) throws -> APDUResponse {
-        Logger.shared.log("sign hash=\(Data(hash).toHexString()) path=\(path) makeCurrent=\(makeCurrent)")
         let path = try KeyPath(path)
-        Logger.shared.log("sign keypath=\(path)")
         let p1 = (makeCurrent ? SignP1.deriveAndMakeCurrent.rawValue : SignP1.currentKey.rawValue) | path.source.rawValue
         return try sign(p1: p1, data: (hash + path.data))
     }
@@ -196,14 +193,11 @@ public class KeycardCommandSet {
     }
 
     public func sign(p1: UInt8, data: [UInt8]) throws -> APDUResponse {
-        Logger.shared.log("sign p1=\(String(p1, radix:16)) data=\(Data(data).toHexString())")
-
         let cmd = secureChannel.protectedCommand(cla: CLA.proprietary.rawValue, ins: KeycardINS.sign.rawValue, p1: p1, p2: 0, data: data)
         return try secureChannel.transmit(channel: cardChannel, cmd: cmd)
     }
 
     public func deriveKey(path: String) throws -> APDUResponse {
-        Logger.shared.log("deriveKey path=\(path)")
         let path = try KeyPath(path)
         return try deriveKey(p1: path.source.rawValue, data: path.data)
     }
@@ -252,7 +246,6 @@ public class KeycardCommandSet {
 
     public func initialize(pin: String, puk: String, sharedSecret: [UInt8]) throws -> APDUResponse {
         let data = (Array((pin + puk).utf8) + sharedSecret)
-        Logger.shared.log("initialize(pin=\(pin) puk=\(puk) sharedSecret=\(Data(sharedSecret).toHexString())): data=\(Data(data).toHexString())")
         let cmd = APDUCommand(cla: CLA.proprietary.rawValue, ins: KeycardINS.initialize.rawValue, p1: 0, p2: 0, data: secureChannel.oneShotEncrypt(data: data))
         return try secureChannel.transmit(channel: cardChannel, cmd: cmd)
     }

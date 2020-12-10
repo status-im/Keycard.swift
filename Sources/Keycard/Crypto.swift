@@ -23,13 +23,11 @@ class Crypto {
     
     func aes256Enc(data: [UInt8], iv: [UInt8], key: [UInt8]) -> [UInt8] {
         let result = try! AES(key: key, blockMode: CBC(iv: iv), padding: .noPadding).encrypt(data)
-        Logger.shared.log("aes256Enc(data=\(Data(data).toHexString()) iv=\(Data(iv).toHexString()) key=\(Data(key).toHexString())) => \(Data(result).toHexString())")
         return result
     }
     
     func aes256Dec(data: [UInt8], iv: [UInt8], key: [UInt8]) -> [UInt8] {
         let result = try! AES(key: key, blockMode: CBC(iv: iv), padding: .noPadding).decrypt(data)
-        Logger.shared.log("aes256Dec(data=\(Data(data).toHexString()) iv=\(Data(iv).toHexString()) key=\(Data(key).toHexString())) => \(Data(result).toHexString())")
         return result
     }
     
