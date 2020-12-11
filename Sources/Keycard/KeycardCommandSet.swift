@@ -184,7 +184,7 @@ public class KeycardCommandSet {
 
     public func sign(hash: [UInt8], path: String, makeCurrent: Bool) throws -> APDUResponse {
         let path = try KeyPath(path)
-        let p1 = (makeCurrent ? SignP1.deriveAndMakeCurrent.rawValue : SignP1.currentKey.rawValue) | path.source.rawValue
+        let p1 = (makeCurrent ? SignP1.deriveAndMakeCurrent.rawValue : SignP1.deriveKey.rawValue) | path.source.rawValue
         return try sign(p1: p1, data: (hash + path.data))
     }
 
