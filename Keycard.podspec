@@ -8,6 +8,7 @@ Pod::Spec.new do |spec|
 	spec.source_files = 'Sources/Keycard/*.swift'
 	spec.summary = 'Keycard'
 	spec.swift_version = '4.2'
+	spec.platforms = { :ios => '10.0' }
 	spec.frameworks = 'CoreNFC'
 	spec.dependency 'CryptoSwift'
 	spec.dependency 'secp256k1'
