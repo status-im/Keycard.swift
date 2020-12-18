@@ -32,7 +32,7 @@ public struct BIP32KeyPair {
     }
     
     public init(fromSeed binarySeed: [UInt8]) {
-        let mac = Crypto.shared.hmacSHA512(data: binarySeed, key: Array("Bitcoin Seed".utf8))
+        let mac = Crypto.shared.hmacSHA512(data: binarySeed, key: Array("Bitcoin seed".utf8))
         self.init(privateKey: Array(mac[0..<32]), chainCode: Array(mac[32...]), publicKey: nil)
     }
     
