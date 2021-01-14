@@ -84,6 +84,10 @@ open class KeycardController: NSObject {
         }
     }
 
+    /// Restarts RF polling
+    public func restartPolling() {
+        session.restartPolling()
+    }
 }
 
 @available(iOS 13.0, *)
