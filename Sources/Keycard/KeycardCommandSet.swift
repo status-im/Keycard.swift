@@ -230,7 +230,7 @@ public class KeycardCommandSet {
 
     public func exportKey(path: String, makeCurrent: Bool, publicOnly: Bool) throws -> APDUResponse {
         let path = try KeyPath(path)
-        let p1 = (makeCurrent ? ExportKeyP1.deriveAndMakeCurrent.rawValue : ExportKeyP1.deriveAndMakeCurrent.rawValue) | path.source.rawValue
+        let p1 = (makeCurrent ? ExportKeyP1.deriveAndMakeCurrent.rawValue : ExportKeyP1.deriveKey.rawValue) | path.source.rawValue
         let p2 = publicOnly ? ExportKeyP2.publicOnly.rawValue : ExportKeyP2.privateAndPublic.rawValue
         return try exportKey(p1: p1, p2: p2, data: path.data)
     }
