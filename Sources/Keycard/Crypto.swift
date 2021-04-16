@@ -80,7 +80,7 @@ class Crypto {
                                           &saltBytes,
                                           saltBytes.count,
                                           prf,
-                                          iterations,
+                                          UInt32(iterations),
                                           &outKey,
                                           keyLength)
         if result == kCCParamError {
