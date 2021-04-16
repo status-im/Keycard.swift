@@ -73,11 +73,10 @@ class Crypto {
 
         precondition(salt.count < 133, "Salt must be less than 133 bytes length")
         var saltBytes = salt
-        var passwordBytes = Array(password.utf8)
         var outKey: [UInt8] = [UInt8](repeating: 0, count: keyLength)
         let result = CCKeyDerivationPBKDF(CCPBKDFAlgorithm(kCCPBKDF2),
-                                          &passwordBytes,
-                                          passwordBytes.count,
+                                          password,
+                                          password.lengthOfBytes(using: String.Encoding.utf8),
                                           &saltBytes,
                                           saltBytes.count,
                                           prf,
