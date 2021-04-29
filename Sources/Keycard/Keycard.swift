@@ -114,6 +114,7 @@ public enum Identifier: String {
     case ndefInstanceAID = "D2760000850101"
     case keycardCashAID = "A000000804000103"
     case keycardCashInstanceAID = "A00000080400010301"
+    case isdInstanceAID = "A000000151000000"
 
     public var val: [UInt8] {
         return rawValue.hexToBytes
