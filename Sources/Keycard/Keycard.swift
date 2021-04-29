@@ -1,13 +1,20 @@
-enum CLA: UInt8 {
+public enum CLA: UInt8 {
     case iso7816 = 0x00
     case proprietary = 0x80
 }
 
-enum ISO7816INS: UInt8 {
+public enum ISO7816INS: UInt8 {
     case select = 0xa4
 }
 
-enum KeycardINS: UInt8 {
+public enum GlobalPlatformINS: UInt8 {
+    case initializeUpdate = 0x50
+    case externalAuthenticate = 0x82
+    case delete = 0xe4
+    case install = 0xe6
+}
+
+public enum KeycardINS: UInt8 {
     case initialize = 0xfe
     case getStatus = 0xf2
     case verifyPIN = 0x20
@@ -82,7 +89,7 @@ public enum ExportKeyP2: UInt8 {
     case publicOnly = 0x01
 }
 
-enum SecureChannelINS: UInt8 {
+public enum SecureChannelINS: UInt8 {
     case openSecureChannel = 0x10
     case mutuallyAuthenticate = 0x11
     case pair = 0x12
@@ -115,5 +122,14 @@ public enum Identifier: String {
     public static func getKeycardInstanceAID(instanceId: UInt8 = 1) -> [UInt8] {
         precondition(instanceId >= 1, "The instance index must be between 1 and 255")
         return keycardAID.val + [instanceId]
+    }
+}
+
+public enum GlobalPlatformKeys: String {
+    case defaultKeys = "404142434445464748494a4b4c4d4e4f"
+    case statusKeys = "c212e073ff8b4bbfaff4de8ab655221f"
+    
+    public var val: [UInt8] {
+        return rawValue.hexToBytes
     }
 }

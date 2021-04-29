@@ -33,10 +33,52 @@ class Crypto {
 
     func aes256CMac(data: [UInt8], key: [UInt8]) -> [UInt8] {
         let result = aes256Enc(data: data, iv: [UInt8](repeating: 0, count: SecureChannel.blockLength), key: key).suffix(16)
-        assert(result.count == 16, "CMac must be 16 bytes long but it is \(result.count)")
         return Array(result)
     }
-
+    
+    func desEnc(data: [UInt8], iv: [UInt8], key: [UInt8]) -> [UInt8] {
+        var out: [UInt8] = [UInt8](repeating: 0, count: data.count)
+        var encrypted: Int = 0
+        var tmpKey = key
+        var tmpData = data
+        var tmpIV = iv
+        
+        CCCrypt(CCOperation(kCCEncrypt), CCAlgorithm(kCCAlgorithmDES), CCOptions(0), &tmpKey, key.count, &tmpIV, &tmpData, data.count, &out, out.count, &encrypted)
+        return out
+    }
+       
+    func des3Enc(data: [UInt8], iv: [UInt8], key: [UInt8]) -> [UInt8] {
+        var out: [UInt8] = [UInt8](repeating: 0, count: data.count)
+        var encrypted: Int = 0
+        var tmpKey = key
+        var tmpData = data
+        var tmpIV = iv
+        
+        CCCrypt(CCOperation(kCCEncrypt), CCAlgorithm(kCCAlgorithm3DES), CCOptions(0), &tmpKey, key.count, &tmpIV, &tmpData, data.count, &out, out.count, &encrypted)
+        return out
+    }
+    
+    func des3Mac(data: [UInt8], iv: [UInt8], key: [UInt8]) -> [UInt8] {
+        let enc: [UInt8] = des3Enc(data: data, iv: iv, key: key)
+        return Array(enc.suffix(8))
+    }
+    
+    func des3FullMac(data: [UInt8], iv: [UInt8], key: [UInt8]) -> [UInt8] {
+        let des3IV : [UInt8]
+        
+        if (data.count > 8) {
+            des3IV = desEnc(data: Array(data[0..<(data.count - 8)]), iv: iv, key: resizeDESKey8(key))
+        } else {
+            des3IV = iv
+        }
+        
+        return des3Mac(data: Array(data.suffix(8)), iv: des3IV, key: key)
+    }
+    
+    func resizeDESKey8(_ key: [UInt8]) -> [UInt8] {
+        return Array(key[0..<8])
+    }
+    
     func iso7816_4Pad(data: [UInt8], blockSize: Int) -> [UInt8] {
         var padded = Array(data)
         padded.append(0x80)
