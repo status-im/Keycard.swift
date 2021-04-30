@@ -89,7 +89,7 @@ class Crypto {
         let des3IV : [UInt8]
         
         if (data.count > 8) {
-            des3IV = desEnc(data: Array(data[0..<(data.count - 8)]), iv: iv, key: resizeDESKey8(key))
+            des3IV = Array(desEnc(data: Array(data[0..<(data.count - 8)]), iv: iv, key: resizeDESKey8(key)).suffix(8))
         } else {
             des3IV = iv
         }

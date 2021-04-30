@@ -41,7 +41,8 @@ public class SCP02 {
         encKey = deriveSessionKey(key: key, seq: seq, purpose: SCP02.derivationPurposeEnc)
         macKey = deriveSessionKey(key: key, seq: seq, purpose: SCP02.derivationPurposeMac)
         dataKey = deriveSessionKey(key: key, seq: seq, purpose: SCP02.derivationPurposeDek)
-        
+        icv = SCP02.zeroIV
+
         return verifyCryptogram(hostChallenge: hostChallenge, cardCryptogram: cardCryptogram)
     }
     

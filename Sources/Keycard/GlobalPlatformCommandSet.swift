@@ -29,7 +29,7 @@ public class GlobalPlatformCommandSet {
         return resp
     }
     
-    public func externalUpdate(hostChallenge: [UInt8]) throws -> APDUResponse {
+    public func externalAuthenticate(hostChallenge: [UInt8]) throws -> APDUResponse {
         let hostCryptogram = secureChannel.generateHostCryptogram(hostChallenge: hostChallenge)
         let externalAuth: APDUCommand = APDUCommand(cla: CLA.proprietary.rawValue, ins: GlobalPlatformINS.externalAuthenticate.rawValue, p1: 0x01, p2: 0, data: hostCryptogram)
         return try secureChannel.send(externalAuth)
@@ -38,7 +38,7 @@ public class GlobalPlatformCommandSet {
     public func openSecureChannel() throws {
         let hostChallenge: [UInt8] = Crypto.shared.random(count: 8)
         try initializeUpdate(hostChallenge: hostChallenge).checkOK()
-        try externalUpdate(hostChallenge: hostChallenge).checkOK()
+        try externalAuthenticate(hostChallenge: hostChallenge).checkOK()
     }
 
     public func deleteKeycardInstance() throws -> APDUResponse {
