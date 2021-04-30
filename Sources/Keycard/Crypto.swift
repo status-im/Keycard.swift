@@ -46,6 +46,17 @@ class Crypto {
         CCCrypt(CCOperation(kCCEncrypt), CCAlgorithm(kCCAlgorithmDES), CCOptions(0), &tmpKey, key.count, &tmpIV, &tmpData, data.count, &out, out.count, &encrypted)
         return out
     }
+    
+    func desDec(data: [UInt8], iv: [UInt8], key: [UInt8]) -> [UInt8] {
+        var out: [UInt8] = [UInt8](repeating: 0, count: data.count)
+        var decrypted: Int = 0
+        var tmpKey = key
+        var tmpData = data
+        var tmpIV = iv
+        
+        CCCrypt(CCOperation(kCCDecrypt), CCAlgorithm(kCCAlgorithmDES), CCOptions(0), &tmpKey, key.count, &tmpIV, &tmpData, data.count, &out, out.count, &decrypted)
+        return out
+    }
        
     func des3Enc(data: [UInt8], iv: [UInt8], key: [UInt8]) -> [UInt8] {
         var out: [UInt8] = [UInt8](repeating: 0, count: data.count)
@@ -55,6 +66,17 @@ class Crypto {
         var tmpIV = iv
         
         CCCrypt(CCOperation(kCCEncrypt), CCAlgorithm(kCCAlgorithm3DES), CCOptions(0), &tmpKey, key.count, &tmpIV, &tmpData, data.count, &out, out.count, &encrypted)
+        return out
+    }
+    
+    func des3Dec(data: [UInt8], iv: [UInt8], key: [UInt8]) -> [UInt8] {
+        var out: [UInt8] = [UInt8](repeating: 0, count: data.count)
+        var decrypted: Int = 0
+        var tmpKey = key
+        var tmpData = data
+        var tmpIV = iv
+        
+        CCCrypt(CCOperation(kCCDecrypt), CCAlgorithm(kCCAlgorithm3DES), CCOptions(0), &tmpKey, key.count, &tmpIV, &tmpData, data.count, &out, out.count, &decrypted)
         return out
     }
     

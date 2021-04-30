@@ -127,8 +127,8 @@ public enum Identifier: String {
 }
 
 public enum GlobalPlatformKeys: String {
-    case defaultKeys = "404142434445464748494a4b4c4d4e4f"
-    case statusKeys = "c212e073ff8b4bbfaff4de8ab655221f"
+    case defaultKeys = "404142434445464748494a4b4c4d4e4f4041424344454647"
+    case statusKeys = "c212e073ff8b4bbfaff4de8ab655221fc212e073ff8b4bbf"
     
     public var val: [UInt8] {
         return rawValue.hexToBytes
