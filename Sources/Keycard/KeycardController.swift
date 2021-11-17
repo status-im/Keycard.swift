@@ -98,7 +98,9 @@ extension KeycardController: NFCTagReaderSessionDelegate {
     }
 
     public func tagReaderSession(_ session: NFCTagReaderSession, didInvalidateWithError error: Error) {
-        onFailure(error)
+        DispatchQueue.global().async {
+            self.onFailure(error)
+        }
     }
 
     public func tagReaderSession(_ session: NFCTagReaderSession, didDetect tags: [NFCTag]) {
