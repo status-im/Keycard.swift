@@ -12,4 +12,5 @@ Pod::Spec.new do |spec|
 	spec.frameworks = 'CoreNFC'
 	spec.dependency 'CryptoSwift'
 	spec.dependency 'secp256k1'
+  spec.dependency 'Zip'
 end

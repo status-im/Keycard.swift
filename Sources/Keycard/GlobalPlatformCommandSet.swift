@@ -1,6 +1,8 @@
 import Foundation
 
 public class GlobalPlatformCommandSet {
+    public typealias LoadCallback = (_ currentBlock: UInt8, _ totalBlocks: UInt8) -> Void
+
     let cardChannel: CardChannel
     let secureChannel: SCP02
     
@@ -52,6 +54,17 @@ public class GlobalPlatformCommandSet {
     public func deleteNDEFInstance() throws -> APDUResponse {
         return try delete(aid: Identifier.ndefInstanceAID.val)
     }
+
+    public func deleteKeycardPackage() throws -> APDUResponse {
+        return try delete(aid: Identifier.packageAID.val)
+    }
+
+    public func deleteKeycardInstancesAndPackage() throws {
+        try deleteNDEFInstance().checkSW(.ok, .referencedDataNotFound)
+        try deleteKeycardInstance().checkSW(.ok, .referencedDataNotFound)
+        try deleteCashInstance().checkSW(.ok, .referencedDataNotFound)
+        try deleteKeycardPackage().checkSW(.ok, .referencedDataNotFound)
+    }
     
     public func delete(aid: [UInt8]) throws -> APDUResponse {
         var data: [UInt8] = [0x4f]
@@ -88,7 +101,49 @@ public class GlobalPlatformCommandSet {
         data.append(contentsOf: params)
         data.append(0x00)
         
-        let installForInstall: APDUCommand = APDUCommand(cla: CLA.proprietary.rawValue, ins: GlobalPlatformINS.install.rawValue, p1: 0x0c, p2: 0, data: data)
+        let installForInstall: APDUCommand = APDUCommand(cla: CLA.proprietary.rawValue, ins: GlobalPlatformINS.install.rawValue, p1: GlobalPlatformInstallP1.forInstall.rawValue, p2: 0, data: data)
         return try secureChannel.send(installForInstall)
+    }
+
+    public func loadKeycardPackage(fileURL: URL, callback: LoadCallback, shouldForceLoad: Bool = false) throws {
+        if shouldForceLoad {
+            try deleteKeycardInstancesAndPackage()
+        }
+        
+        try installKeycardPackage().checkOK()
+
+        let fileLoader = try FileLoader(fileURL: fileURL)
+        let totalBlocks = fileLoader.underestimatedCount
+        for block in fileLoader {
+            try load(data: block.data, blockCount: block.blockCount, hasMoreBlocks: block.hasMoreBlocks).checkOK()
+            callback(block.blockCount + 1, UInt8(totalBlocks))
+        }
+    }
+
+    public func installKeycardPackage() throws -> APDUResponse {
+        try installForLoad(loadFileAID: Identifier.packageAID.val)
+    }
+
+    public func installForLoad(loadFileAID: [UInt8], securityDomainAID: [UInt8] = []) throws -> APDUResponse {
+        var data: [UInt8] = [UInt8(loadFileAID.count)]
+        data.append(contentsOf: loadFileAID)
+        data.append(UInt8(securityDomainAID.count))
+        data.append(contentsOf: securityDomainAID)
+
+        // empty block hash
+        data.append(0x00)
+        // empty parameters field
+        data.append(0x00)
+        // empty token
+        data.append(0x00)
+
+        let installForLoad: APDUCommand = APDUCommand(cla: CLA.proprietary.rawValue, ins: GlobalPlatformINS.install.rawValue, p1: GlobalPlatformInstallP1.forLoad.rawValue, p2: 0, data: data)
+        return try secureChannel.send(installForLoad)
+    }
+
+    public func load(data: [UInt8], blockCount: UInt8, hasMoreBlocks: Bool) throws -> APDUResponse {
+        let p1 = hasMoreBlocks ? GlobalPlatformLoadP1.moreBlocks.rawValue : GlobalPlatformLoadP1.lastBlock.rawValue
+        let load: APDUCommand = APDUCommand(cla: CLA.proprietary.rawValue, ins: GlobalPlatformINS.load.rawValue, p1: p1, p2: blockCount, data: data)
+        return try secureChannel.send(load)
     }
 }
