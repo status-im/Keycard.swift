@@ -8,6 +8,7 @@ struct FileLoader {
 
     public enum Error: Swift.Error {
         case fileIsTooLarge
+        case fileIsEmpty
     }
 
     private var currentBlock: UInt8 = 0
@@ -15,17 +16,17 @@ struct FileLoader {
     private var data: [UInt8]
 
     public init(fileURL: URL) throws {
-        let files = Self.unzipFileAndGetSubfilesURLs(fileURL: fileURL)
+        let files = try Self.unzipFileAndGetSubfilesURLs(fileURL: fileURL)
 
         // Flatten the data contained in each file
-        let flattenedFileData = files.flatMap { Array(try! Data(contentsOf: $0)) }
+        let flattenedFileData = try files.flatMap { Array(try Data(contentsOf: $0)) }
         let encodedLength = try Self.encodeFullLength(flattenedFileData.count)
         self.data = [Self.fileTag] + encodedLength + flattenedFileData
     }
 
-    private static func unzipFileAndGetSubfilesURLs(fileURL: URL) -> [URL] {
+    private static func unzipFileAndGetSubfilesURLs(fileURL: URL) throws -> [URL] {
         Zip.addCustomFileExtension("cap")
-        let unzipDirectory = try! Zip.quickUnzipFile(fileURL)
+        let unzipDirectory = try Zip.quickUnzipFile(fileURL)
         var files = [URL](repeating: unzipDirectory, count: fileNames.count)
         if let enumerator = FileManager.default.enumerator(at: unzipDirectory, includingPropertiesForKeys: [.isRegularFileKey], options: [.skipsHiddenFiles, .skipsPackageDescendants]) {
             for case let fileURL as URL in enumerator {
@@ -37,6 +38,7 @@ struct FileLoader {
             // Remove files that were not presen in the CAP file
             files = files.filter { $0 != unzipDirectory }
         }
+        guard !files.isEmpty else { throw Error.fileIsEmpty }
         return files
     }
 
