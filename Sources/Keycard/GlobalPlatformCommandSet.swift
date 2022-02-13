@@ -106,13 +106,13 @@ public class GlobalPlatformCommandSet {
     }
 
     public func loadKeycardPackage(fileURL: URL, callback: LoadCallback, shouldForceLoad: Bool = false) throws {
+        let fileLoader = try FileLoader(fileURL: fileURL)
         if shouldForceLoad {
             try deleteKeycardInstancesAndPackage()
         }
-        
+
         try installKeycardPackage().checkOK()
 
-        let fileLoader = try FileLoader(fileURL: fileURL)
         let totalBlocks = fileLoader.underestimatedCount
         for block in fileLoader {
             try load(data: block.data, blockCount: block.blockCount, hasMoreBlocks: block.hasMoreBlocks).checkOK()

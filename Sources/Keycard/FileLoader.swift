@@ -76,7 +76,7 @@ extension FileLoader: Sequence, IteratorProtocol {
         return Element(
             data: Array(data[dataOffset ..< Swift.min(dataOffset + Self.blockSize, data.count)]),
             blockCount: currentBlock,
-            hasMoreBlocks: currentBlock == (underestimatedCount - 1)
+            hasMoreBlocks: currentBlock < underestimatedCount - 1
         )
     }
 }
