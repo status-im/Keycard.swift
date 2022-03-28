@@ -12,6 +12,17 @@ public enum GlobalPlatformINS: UInt8 {
     case externalAuthenticate = 0x82
     case delete = 0xe4
     case install = 0xe6
+    case load = 0xe8
+}
+
+public enum GlobalPlatformInstallP1: UInt8 {
+    case forLoad = 0x02
+    case forInstall = 0x0c
+}
+
+public enum GlobalPlatformLoadP1: UInt8 {
+    case moreBlocks = 0x00
+    case lastBlock = 0x80
 }
 
 public enum KeycardINS: UInt8 {
