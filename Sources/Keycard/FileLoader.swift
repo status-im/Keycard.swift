@@ -1,5 +1,5 @@
 import Foundation
-import Zip
+import SSZipArchive
 
 struct FileLoader {
     private static let blockSize = 247 // 255 - 8 bytes for MAC
@@ -25,8 +25,7 @@ struct FileLoader {
     }
 
     private static func unzipFileAndGetSubfilesURLs(fileURL: URL) throws -> [URL] {
-        Zip.addCustomFileExtension("cap")
-        let unzipDirectory = try Zip.quickUnzipFile(fileURL)
+        let unzipDirectory = Self.quickUnzipFile(fileURL)
         var files = [URL](repeating: unzipDirectory, count: fileNames.count)
         if let enumerator = FileManager.default.enumerator(at: unzipDirectory, includingPropertiesForKeys: [.isRegularFileKey], options: [.skipsHiddenFiles, .skipsPackageDescendants]) {
             for case let fileURL as URL in enumerator {
@@ -38,9 +37,22 @@ struct FileLoader {
             // Remove files that were not presen in the CAP file
             files = files.filter { $0 != unzipDirectory }
         }
+
         guard !files.isEmpty else { throw Error.fileIsEmpty }
         return files
     }
+
+    private static func quickUnzipFile(_ path: URL) -> URL {
+        let fileExtension = path.pathExtension
+        let fileName = path.lastPathComponent
+        let directoryName = fileName.replacingOccurrences(of: ".\(fileExtension)", with: "")
+        let documentsUrl = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+
+        let destinationUrl = documentsUrl.appendingPathComponent(directoryName, isDirectory: true)
+        SSZipArchive.unzipFile(atPath: path.path, toDestination: destinationUrl.path)
+
+        return destinationUrl
+    }    
 
     private static func encodeFullLength(_ length: Int) throws -> [UInt8] {
         if length < 0x80 {
