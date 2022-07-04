@@ -49,7 +49,7 @@ struct FileLoader {
         let documentsUrl = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
 
         let destinationUrl = documentsUrl.appendingPathComponent(directoryName, isDirectory: true)
-        SSZipArchive.unzipFileAtPath(path.path, toDestination: destinationUrl.path)
+        SSZipArchive.unzipFileAtPath(atPath: path.path, toDestination: destinationUrl.path)
 
         return destinationUrl
     }    
