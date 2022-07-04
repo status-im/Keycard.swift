@@ -42,7 +42,7 @@ struct FileLoader {
         return files
     }
 
-    private static class func quickUnzipFile(_ path: URL) throws -> URL {
+    private static func quickUnzipFile(_ path: URL) throws -> URL {
         let fileExtension = path.pathExtension
         let fileName = path.lastPathComponent
         let directoryName = fileName.replacingOccurrences(of: ".\(fileExtension)", with: "")
