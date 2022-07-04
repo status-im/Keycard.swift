@@ -42,11 +42,11 @@ struct FileLoader {
         return files
     }
 
-    private static func quickUnzipFile(_ path: URL) throws -> URL {
+    private static func quickUnzipFile(_ path: URL) -> URL {
         let fileExtension = path.pathExtension
         let fileName = path.lastPathComponent
         let directoryName = fileName.replacingOccurrences(of: ".\(fileExtension)", with: "")
-        let documentsUrl = FileManager.default.urls(for: self.searchPathDirectory(), in: .userDomainMask)[0]
+        let documentsUrl = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
 
         let destinationUrl = documentsUrl.appendingPathComponent(directoryName, isDirectory: true)
         SSZipArchive.unzipFileAtPath(path.path, toDestination: destinationUrl.path)
