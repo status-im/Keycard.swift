@@ -27,6 +27,7 @@ public enum GlobalPlatformLoadP1: UInt8 {
 
 public enum KeycardINS: UInt8 {
     case initialize = 0xfe
+    case factoryReset = 0xfd
     case getStatus = 0xf2
     case verifyPIN = 0x20
     case changePIN = 0x21
@@ -116,6 +117,14 @@ public enum StoreDataP1: UInt8 {
     case publicData = 0x00
     case ndef = 0x01
     case cash = 0x02
+}
+
+public enum FactoryResetP1: UInt8 {
+    case magic = 0xaa
+}
+
+public enum FactoryResetP2: UInt8 {
+    case magic = 0x55
 }
 
 public enum Identifier: String {

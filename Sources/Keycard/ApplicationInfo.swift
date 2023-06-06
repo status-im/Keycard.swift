@@ -11,7 +11,8 @@ enum AppCapability: UInt8 {
     case keyManagement = 0x02
     case credentialsManagement = 0x04
     case ndef = 0x08
-    case all = 0x0f
+    case factoryReset = 0x10
+    case all = 0x1f
 }
 
 public struct ApplicationInfo {
@@ -46,6 +47,10 @@ public struct ApplicationInfo {
 
     public var hasNDEFCapability: Bool {
         return (capabilities & AppCapability.ndef.rawValue) != 0
+    }
+
+    public var hasFactoryResetCapability: Bool {
+        return (capabilities & AppCapability.factoryReset.rawValue) != 0
     }
 
     public init(_ data: [UInt8]) throws {

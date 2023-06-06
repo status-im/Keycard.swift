@@ -249,4 +249,9 @@ public class KeycardCommandSet {
         let cmd = APDUCommand(cla: CLA.proprietary.rawValue, ins: KeycardINS.initialize.rawValue, p1: 0, p2: 0, data: secureChannel.oneShotEncrypt(data: data))
         return try secureChannel.transmit(channel: cardChannel, cmd: cmd)
     }
+
+    public func factoryReset() throws -> APDUResponse {
+        let cmd = APDUCommand(cla: CLA.proprietary.rawValue, ins: KeycardINS.factoryReset.rawValue, p1: FactoryResetP1.magic.rawValue, p2: FactoryResetP2.magic.rawValue, data: [])
+        return try cardChannel.send(cmd)
+    }    
 }
