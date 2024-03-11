@@ -249,6 +249,19 @@ public class KeycardCommandSet {
         let cmd = APDUCommand(cla: CLA.proprietary.rawValue, ins: KeycardINS.initialize.rawValue, p1: 0, p2: 0, data: secureChannel.oneShotEncrypt(data: data))
         return try secureChannel.transmit(channel: cardChannel, cmd: cmd)
     }
+    
+    public func initialize(pin: String, pinAttempts: UInt8?, duressPin: String?, puk: String, pukAttempts: UInt8?, pairingPassword: String) throws -> APDUResponse {
+        try initialize(pin: pin, pinAttempts: pinAttempts, duressPin: duressPin, puk: puk, pukAttempts: pukAttempts, sharedSecret: pairingPasswordToSecret(password: pairingPassword))
+    }
+    
+    public func initialize(pin: String, pinAttempts: UInt8?, duressPin: String?, puk: String, pukAttempts: UInt8?, sharedSecret: [UInt8]) throws -> APDUResponse {
+        let pinAttempts: UInt8 = pinAttempts ?? 3
+        let pukAttempts: UInt8 = pukAttempts ?? 5
+        let duressPin = duressPin ?? String(puk[puk.startIndex ..< puk.index(puk.startIndex, offsetBy: 6)])
+        let data = (Array((pin + puk).utf8) + sharedSecret + [pinAttempts, pukAttempts] + Array(duressPin.utf8))
+        let cmd = APDUCommand(cla: CLA.proprietary.rawValue, ins: KeycardINS.initialize.rawValue, p1: 0, p2: 0, data: secureChannel.oneShotEncrypt(data: data))
+        return try secureChannel.transmit(channel: cardChannel, cmd: cmd)
+    }
 
     public func factoryReset() throws -> APDUResponse {
         let cmd = APDUCommand(cla: CLA.proprietary.rawValue, ins: KeycardINS.factoryReset.rawValue, p1: FactoryResetP1.magic.rawValue, p2: FactoryResetP2.magic.rawValue, data: [])
