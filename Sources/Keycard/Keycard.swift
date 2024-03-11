@@ -99,6 +99,7 @@ public enum ExportKeyP1: UInt8 {
 public enum ExportKeyP2: UInt8 {
     case privateAndPublic = 0x00
     case publicOnly = 0x01
+    case extendedPublic = 0x02
 }
 
 public enum SecureChannelINS: UInt8 {
