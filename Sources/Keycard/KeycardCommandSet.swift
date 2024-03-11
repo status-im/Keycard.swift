@@ -2,6 +2,12 @@ import Foundation
 import CryptoSwift
 
 public class KeycardCommandSet {
+    public enum ExportOption {
+        case privateAndPublic
+        case publicOnly
+        case extendedPublic
+    }
+    
     let cardChannel: CardChannel
     let secureChannel: SecureChannel
     public var info: ApplicationInfo?
@@ -223,15 +229,45 @@ public class KeycardCommandSet {
         return try secureChannel.transmit(channel: cardChannel, cmd: cmd)
     }
 
+    @available(*, deprecated, renamed: "exportCurrentKey(exportOption:)")
     public func exportCurrentKey(publicOnly: Bool) throws -> APDUResponse {
         let p2 = publicOnly ? ExportKeyP2.publicOnly.rawValue : ExportKeyP2.privateAndPublic.rawValue
         return try exportKey(p1: ExportKeyP1.currentKey.rawValue, p2: p2, data: [])
     }
+    
+    public func exportCurrentKey(exportOption: ExportOption) throws -> APDUResponse {
+        let p2: UInt8
+        switch exportOption {
+        case .privateAndPublic:
+            p2 = ExportKeyP2.privateAndPublic.rawValue
+        case .publicOnly:
+            p2 = ExportKeyP2.publicOnly.rawValue
+        case .extendedPublic:
+            p2 = ExportKeyP2.extendedPublic.rawValue
+        }
+        return try exportKey(p1: ExportKeyP1.currentKey.rawValue, p2: p2, data: [])
+    }
 
+    @available(*, deprecated, renamed: "exportKey(path:makeCurrent:exportOption:)")
     public func exportKey(path: String, makeCurrent: Bool, publicOnly: Bool) throws -> APDUResponse {
         let path = try KeyPath(path)
         let p1 = (makeCurrent ? ExportKeyP1.deriveAndMakeCurrent.rawValue : ExportKeyP1.deriveKey.rawValue) | path.source.rawValue
         let p2 = publicOnly ? ExportKeyP2.publicOnly.rawValue : ExportKeyP2.privateAndPublic.rawValue
+        return try exportKey(p1: p1, p2: p2, data: path.data)
+    }
+    
+    public func exportKey(path: String, makeCurrent: Bool, exportOption: ExportOption) throws -> APDUResponse {
+        let path = try KeyPath(path)
+        let p1 = (makeCurrent ? ExportKeyP1.deriveAndMakeCurrent.rawValue : ExportKeyP1.deriveKey.rawValue) | path.source.rawValue
+        let p2: UInt8
+        switch exportOption {
+        case .privateAndPublic:
+            p2 = ExportKeyP2.privateAndPublic.rawValue
+        case .publicOnly:
+            p2 = ExportKeyP2.publicOnly.rawValue
+        case .extendedPublic:
+            p2 = ExportKeyP2.extendedPublic.rawValue
+        }
         return try exportKey(p1: p1, p2: p2, data: path.data)
     }
 
