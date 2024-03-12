@@ -2,6 +2,12 @@ import Foundation
 import CryptoSwift
 
 public class KeycardCommandSet {
+    public enum ExportOption {
+        case privateAndPublic
+        case publicOnly
+        case extendedPublic
+    }
+    
     let cardChannel: CardChannel
     let secureChannel: SecureChannel
     public var info: ApplicationInfo?
@@ -223,15 +229,45 @@ public class KeycardCommandSet {
         return try secureChannel.transmit(channel: cardChannel, cmd: cmd)
     }
 
+    @available(*, deprecated, renamed: "exportCurrentKey(exportOption:)")
     public func exportCurrentKey(publicOnly: Bool) throws -> APDUResponse {
         let p2 = publicOnly ? ExportKeyP2.publicOnly.rawValue : ExportKeyP2.privateAndPublic.rawValue
         return try exportKey(p1: ExportKeyP1.currentKey.rawValue, p2: p2, data: [])
     }
+    
+    public func exportCurrentKey(exportOption: ExportOption) throws -> APDUResponse {
+        let p2: UInt8
+        switch exportOption {
+        case .privateAndPublic:
+            p2 = ExportKeyP2.privateAndPublic.rawValue
+        case .publicOnly:
+            p2 = ExportKeyP2.publicOnly.rawValue
+        case .extendedPublic:
+            p2 = ExportKeyP2.extendedPublic.rawValue
+        }
+        return try exportKey(p1: ExportKeyP1.currentKey.rawValue, p2: p2, data: [])
+    }
 
+    @available(*, deprecated, renamed: "exportKey(path:makeCurrent:exportOption:)")
     public func exportKey(path: String, makeCurrent: Bool, publicOnly: Bool) throws -> APDUResponse {
         let path = try KeyPath(path)
         let p1 = (makeCurrent ? ExportKeyP1.deriveAndMakeCurrent.rawValue : ExportKeyP1.deriveKey.rawValue) | path.source.rawValue
         let p2 = publicOnly ? ExportKeyP2.publicOnly.rawValue : ExportKeyP2.privateAndPublic.rawValue
+        return try exportKey(p1: p1, p2: p2, data: path.data)
+    }
+    
+    public func exportKey(path: String, makeCurrent: Bool, exportOption: ExportOption) throws -> APDUResponse {
+        let path = try KeyPath(path)
+        let p1 = (makeCurrent ? ExportKeyP1.deriveAndMakeCurrent.rawValue : ExportKeyP1.deriveKey.rawValue) | path.source.rawValue
+        let p2: UInt8
+        switch exportOption {
+        case .privateAndPublic:
+            p2 = ExportKeyP2.privateAndPublic.rawValue
+        case .publicOnly:
+            p2 = ExportKeyP2.publicOnly.rawValue
+        case .extendedPublic:
+            p2 = ExportKeyP2.extendedPublic.rawValue
+        }
         return try exportKey(p1: p1, p2: p2, data: path.data)
     }
 
@@ -246,6 +282,19 @@ public class KeycardCommandSet {
 
     public func initialize(pin: String, puk: String, sharedSecret: [UInt8]) throws -> APDUResponse {
         let data = (Array((pin + puk).utf8) + sharedSecret)
+        let cmd = APDUCommand(cla: CLA.proprietary.rawValue, ins: KeycardINS.initialize.rawValue, p1: 0, p2: 0, data: secureChannel.oneShotEncrypt(data: data))
+        return try secureChannel.transmit(channel: cardChannel, cmd: cmd)
+    }
+    
+    public func initialize(pin: String, pinAttempts: UInt8?, duressPin: String?, puk: String, pukAttempts: UInt8?, pairingPassword: String) throws -> APDUResponse {
+        try initialize(pin: pin, pinAttempts: pinAttempts, duressPin: duressPin, puk: puk, pukAttempts: pukAttempts, sharedSecret: pairingPasswordToSecret(password: pairingPassword))
+    }
+    
+    public func initialize(pin: String, pinAttempts: UInt8?, duressPin: String?, puk: String, pukAttempts: UInt8?, sharedSecret: [UInt8]) throws -> APDUResponse {
+        let pinAttempts: UInt8 = pinAttempts ?? 3
+        let pukAttempts: UInt8 = pukAttempts ?? 5
+        let duressPin = duressPin ?? String(puk[puk.startIndex ..< puk.index(puk.startIndex, offsetBy: 6)])
+        let data = (Array((pin + puk).utf8) + sharedSecret + [pinAttempts, pukAttempts] + Array(duressPin.utf8))
         let cmd = APDUCommand(cla: CLA.proprietary.rawValue, ins: KeycardINS.initialize.rawValue, p1: 0, p2: 0, data: secureChannel.oneShotEncrypt(data: data))
         return try secureChannel.transmit(channel: cardChannel, cmd: cmd)
     }
